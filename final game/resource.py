@@ -4,59 +4,43 @@ import math
 import random
 from vector2D import Vector2
 from physics import Distance,rad
+from drawable import drawable
 
-class resource(object):
+class resource(drawable):
    '''
    Implements the Orb object
    '''
 
-   def __init__(self,path,xposition,yposition):
+   def __init__(self,path,xposition,yposition,spotlst):
       '''
       initializes the Orb oject
       '''
 
       #initialize variables
-      
+      super().__init__(path,xposition,yposition)
       self.image= pygame.image.load(path).convert()
       self.velocity = Vector2(0,0)
       self.position = Vector2(0,0)
       self.position.x = xposition
       self.position.y = yposition
       self.dead = False
-      #generate starting conditions for the orb(including random desired speeds, velocity & position vecs)
+      self.spots = spotlst
       
-      self.maxspeed = 30
-      self.tolerance = self.maxspeed/2
-      self.going = False
-      self.start = [0,0]
-      self.end = [0,0]
-      self.spot = [-28 + self.position.x,-18+self.position.y]
-    
-   
+     
+      self.gathererlst = [0 for x in range(len(self.spots))]
+      newspotlst = []
+      for spots in self.spots:
+         oldx = spots[0]
+         oldy = spots[1]
+         spots = (self.position.x + oldx,self.position.y +oldy)
+         newspotlst.append(spots)
+      self.spots = newspotlst
+        
+      #self.spots = [-28 + self.position.x,-18+self.position.y, ]
+      self.occupied = False
+
   
-   def getPosition(self):
-      '''
-      Returns the positional vector of the orb
-      '''
-      return self.position
-   def getX(self):
-
-      return self.position.x
-
-   def getY(self):
-      return self.position.y
-
-   def getWidth(self):
-      '''
-      Returns the width of the orb image
-      '''
-      return self.image.get_width()
-
-   def getHeight(self):
-      '''
-      Returns the height of the orb
-      '''
-      return self.image.get_height()
+  
    def draw(self,surface):
       '''
        Draws the orb
@@ -67,50 +51,62 @@ class resource(object):
          
          surface.blit(self.image, list(self.position))
          self.image.set_colorkey(self.image.get_at((0,0)))
-         
 
- 
-   def getSize(self):
-      '''
-      Returns the size of the orb
-      '''
-      return self.image.get_size()
-
-   
-      
-         
-
-   def getOffset(self):
-      '''
-         returns a Vector2 variable containing the offset for drawing things to the screen.
-      '''
-      return Vector2(max(0,
-                        min(self.position.x + (self.image.get_width() // 2) - \
-                            (SCREEN_SIZE[0] // 2),
-                            WORLD_SIZE[0] - SCREEN_SIZE[0])),
-                    max(0,
-                        min(self.position.y + (self.image.get_height()// 2) - \
-                            (SCREEN_SIZE[1] // 2),
-                            WORLD_SIZE[1] - SCREEN_SIZE[1])))
-
-   def getCollisionRect(self):
-      newRect =  self.position + self.image.get_rect()
-      return newRect
 
    def selected(self):
        self.selected = True
        #self.image = slightly beiged image
 
+   def Isoccupied(self):
+      return self.occupied
    def getgatherspot(self):
-       return self.spot
+       for item in self.gathererlst:
+          if item == 0:
+             return self.gathererlst.index(item)
+       
+       
+   def markandgogather(self,miner):
+      print(" this is self.spots" + str(self.spots))
+      markeditem =0
+      copygatherer =self.gathererlst.copy()
+      #print("This is self.spots" + str(self.spots))
+      #print("This is self.gatherer" + str(self.gathererlst))
+      if 0 not in self.gathererlst:
+         self.occupy()
+      elif 0 in self.gathererlst:
+         self.unoccupy()
+      for item in copygatherer:
+          if item == 0:
+             markeditem = copygatherer.index(item)
+             #print(" This is what I am returned" + str(self.spots[self.gathererlst.index(item)]))
+             self.gathererlst[markeditem] = 1
+             if 0 not in self.gathererlst:
+                self.occupied = True
+             miner.beginmoving(self.spots[copygatherer.index(item)])
+             return 
+      
+   
+   def unmark(self,position):
+      
+      self.gathererlst[position] = 0
+      #print(" making this zero " + str(position) + " here is list " + str(self.gathererlst))
+      if 0 not in self.gathererlst:
+         self.occupy()
+      elif 0 in self.gathererlst:
+         self.unoccupy()
+   def occupy(self):
+      self.occupied = True
+   
+   def unoccupy(self):
+      self.occupied = False
+      
+
+      
+      
+      
+       
+       
+
        
   
 
-       
-
-
-   def kill(self):
-      self.dead  =True
-   def isDead(self):
-      return self.dead
-        

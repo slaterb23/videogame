@@ -3,6 +3,7 @@ from vector2D import Vector2
 from physics import Distance,rad
 from citizen import citizen
 from drawable import drawable
+from rifleman import Rifleman
 import os 
 
 class building(object):
@@ -16,6 +17,7 @@ class building(object):
       '''
 
       #initialize variables
+      
       
       self.velocity = Vector2(0,0)
       self.position = Vector2(0,0)
@@ -39,7 +41,7 @@ class building(object):
       self.image = self.reserveimage
       self.dead = False
       self.buildlevel = 0
-      self.unitdict = {"citizen":citizen}
+      self.unitdict = {"citizen":citizen, "rifleman":Rifleman}
       self.selected = False
       #generate starting conditions for the orb(including random desired speeds, velocity & position vecs)
       
@@ -53,14 +55,22 @@ class building(object):
      
       self.gathererlst = [0 for x in range(len(self.spots))]
 
+      self.HP = 300
+
    def setflagpos(self,flagx,flagy):
        self.flagx = flagx
        self.flagy = flagy
 
    def spawn(self,spawnunit):
-       return self.unitdict[spawnunit](self.position.x, self.position.y)
+       riflepath = os.path.join("images\Rifleman\Walking","180walking1.png")
+       if spawnunit == "rifleman":
+          return self.unitdict[spawnunit](riflepath,self.position.x-40, self.position.y-40)
+       return self.unitdict[spawnunit](self.position.x+10, self.position.y+10)
 
- 
+   def recvdamage(self,damage):
+      self.HP -= damage
+      if self.HP <= 0:
+         self.dead = True
    def update(self):
        self.path = os.path.join(self.pathdir,self.pathname +str(self.progress)+ ".png")
        self.image = pygame.image.load(self.path)

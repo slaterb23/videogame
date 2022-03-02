@@ -1,0 +1,20 @@
+
+import torch
+from doctest import ELLIPSIS_MARKER
+import pygame
+import os
+import math
+import random
+from vector2D import Vector2
+from physics import Distance,rad
+from character import Character
+class Dummy(Character):
+
+    def __init___(self,path,xposition,yposition):
+        self.walking = False
+        self.imageres = self.image
+        self.starttime =1
+        self.dead= False
+        super().__init__(path,xposition,yposition)
+
+        

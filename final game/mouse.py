@@ -25,7 +25,7 @@ class mouse(object):
       self.dead = False
       #generate starting conditions for the orb(including random desired speeds, velocity & position vecs)
       
-     
+      self.occupied = False
     
    
   
@@ -97,8 +97,10 @@ class mouse(object):
       newRect =  self.position + self.image.get_rect()
       return newRect
 
-   def selected(self):
-       self.selected = True
+   def oneselect(self):
+       if self.occupied == False:
+          self.selected = True
+          self.occupied = True
        #self.image = slightly beiged image
   
 

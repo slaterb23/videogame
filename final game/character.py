@@ -24,7 +24,10 @@ class Character(drawable):
         self.going = False
         self.selected = False
         self.arrived = False
-        
+        self.HP = 100
+        self.dead = False
+        self.starttime = 1
+        self.selectedim = pygame.image.load(os.path.join("images","selectedpointer.png")).convert()
     
     def changespeed(self,end):
       self.start = list(self.position)
@@ -44,13 +47,18 @@ class Character(drawable):
          self.velocity.x = -abs(math.cos(angle)*self.maxspeed)
       if start[1] >end[1]:
          self.velocity.y = -abs(math.sin(angle)*self.maxspeed)
+    def changetime(self,time):
+      '''
+      Resets the time cursor used for animation
+      '''
+      self.starttime = time
     def go(self,time):
       '''
       Updates the position of the orb so that it does not fall of the edge
       '''
       #Go only if its going
       
-      if self.going == True:
+      if self.going == True and self.dead == False:
 
          
          # Render the start(the current position) and the end
@@ -173,6 +181,8 @@ class Character(drawable):
         self.selected = False
         self.image = self.imageres
 
+
+
     def getAngle(self):
        if self.velocity.x != 0 and self.velocity.y != 0:
          Angle = math.atan((self.velocity.y/self.velocity.x))*180/(math.pi)
@@ -247,6 +257,12 @@ class Character(drawable):
         Returns the state of selection, or unselection
         '''
         return self.selected
+
+   
+    def recvDamage(self,damage):
+        self.HP -= damage
+        if self.HP <= 0:
+           self.dead = True
       
     def kill(self):
         '''
