@@ -15,6 +15,8 @@ class Dummy(Character):
         self.imageres = self.image
         self.starttime =1
         self.dead= False
+        self.HP = 100
         super().__init__(path,xposition,yposition)
-
+    
+        
         

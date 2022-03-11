@@ -1,4 +1,5 @@
 
+from re import X
 import torch
 from doctest import ELLIPSIS_MARKER
 import pygame
@@ -20,17 +21,22 @@ class Rifleman(Character):
         self.walking = False
         self.imageres = self.image
         self.shooting = False
+        
         self.shootingimage = self.imageres
         self.starttime =1
         self.shootcursor = 1
         self.cocksound = pygame.mixer.Sound(os.path.join("sound","cocking.wav"))
         self.shootsound = pygame.mixer.Sound(os.path.join("sound","rifleshooting.wav"))
+      
 
     def quickshootfix(self):
        self.shooting = False
        self.shootcursor = 1
        self.cocksound = pygame.mixer.Sound(os.path.join("sound","cocking.wav"))
        self.shootsound = pygame.mixer.Sound(os.path.join("sound","rifleshooting.wav"))
+       self.direction = "0"
+       self.enemy = None
+       self.range = 200
 
     def draw(self,surface):
         if [self.dead,self.shooting,self.going] == [False,False,False]:
@@ -48,6 +54,7 @@ class Rifleman(Character):
          
         
         if self.shooting == True:
+           self.walking = False
            self.image = self.shootimage
            surface.blit(self.image, list(self.position))
            self.image.set_colorkey(self.image.get_at((0,0)))
@@ -58,6 +65,7 @@ class Rifleman(Character):
         if self.shooting == True:
            self.going == False
         if self.going == True:
+         self.shooting = False
          self.image = self.walkimage
          surface.blit(self.image, list(self.position))
          self.image.set_colorkey(self.image.get_at((0,0)))
@@ -69,13 +77,29 @@ class Rifleman(Character):
     def goshoot(self,target =None):
        self.target = target
        self.shooting = True
-    def shoot(self,clock,projectilelst,framerate = 5):
+    def shoot(self,clock,projectilelst,enemylst,framerate = 3):
       ''''
       Walks the citizen as per the requested frame rate      
       '''
       
       frame =framerate
 
+      self.shooting = False
+      for enemy in enemylst:
+         xdiff = self.getPosition().x -enemy.getPosition().x
+         ydiff = self.getPosition().y -enemy.getPosition().y
+         xdiff= min(xdiff, 0.0001)
+         angle = (abs(math.atan(ydiff/xdiff)))*180/(math.pi)
+         distance = Distance(list(enemy.getPosition()),list(self.getPosition()))
+         #rint(" Distance is " + str(Distance(list(enemy.getPosition()),list(self.getPosition()))))
+
+         if distance < self.range: 
+            self.shooting =True
+
+      
+
+
+      
       #Weird time, but trial and error shows 28 is best for walking
       time = clock.get_ticks()/28
 
@@ -83,7 +107,38 @@ class Rifleman(Character):
       if self.shooting ==True: 
 
                   
-            direction = "270"
+            if xdiff >0 and ydiff > 0:
+               if angle < 10:
+                  print(" 04")
+                  self.direction = "0"
+               else:
+                  self.direction = "270"
+
+               
+            if xdiff <0 and ydiff <0:
+                if angle > 80:
+                  self.direction = "180"
+                else:
+                  print(" 03")
+                  self.direction = "90"
+            if xdiff >0 and ydiff <0:
+               if angle > 5:
+                  self.direction = "270"
+               else:
+                  print(" 01")
+                  self.direction = "0"
+            if xdiff <0 and ydiff >0:
+               if angle > 80:
+                  self.direction = "0"
+               else:
+                  print(" 02")
+                  self.direction = "90"
+
+            
+            direction = self.direction
+            
+            print("This is self direction ", self.direction, "this is angle " + str(angle))
+
             self.shootimage = pygame.image.load(os.path.join("images\Rifleman\Shooting", direction+"shooting"+str(max(1,round(self.shootcursor/frame)))+".png")).convert()
               #Blit it here instead of the draw method for better clarity
             self.shootimage.set_colorkey(self.image.get_at((0,0)))
@@ -108,7 +163,7 @@ class Rifleman(Character):
                   self.shootcursor = 1
 
                if self.shootcursor == 10*frame:
-                  bullet = Projectile(self.position.x-10,self.position.y+10,300)
+                  bullet = Projectile(self.position.x-10,self.position.y+10,400,int(self.direction))
                   projectilelst.append(bullet)
                   self.shootsound.play()
                if self.shootcursor == 2*frame:
@@ -142,8 +197,10 @@ class Rifleman(Character):
 
                   
             direction = self.getAnglestate()
+            self.direction = direction
             if self.getAnglestate() not in ("270","180","90","0"):
                direction = "0"
+               self.direction = direction
             self.walkimage = pygame.image.load(os.path.join("images\Rifleman\Walking", direction+"walking"+str(max(1,round(self.cursor/frame)))+".png")).convert()
               #Blit it here instead of the draw method for better clarity
             self.walkimage.set_colorkey(self.image.get_at((0,0)))

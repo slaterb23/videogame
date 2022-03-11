@@ -116,7 +116,8 @@ def main():
    register = resourceregister()
    
    for enemy in enemylst:
-      print(enemy.isDead())
+      pass
+      #rint(enemy.isDead())
 
    timer = 0
    oldtime = 0
@@ -132,8 +133,8 @@ def main():
         if abs(timer -time) > 3 and timer != 0:
            warn = False
 
-        print(str(time) + " THis is the timer " + str(timer))
-        if (time)%60 ==0 and time != 0:
+        #rint(str(time) + " THis is the timer " + str(timer))
+        if (time)%25 ==0 and time != 0:
            timer = time
            warn = True
            siren.play()
@@ -142,7 +143,7 @@ def main():
            
            
            
-        if (time)%65 ==0 and time != 0 and time != oldtime:
+        if (time)%30 ==0 and time != 0 and time != oldtime:
            oldtime = time
            newDummy = Dummy(dummypath,50,50)
            newDummy.beginmoving((homepos[0] + 50, homepos[1]+50))
@@ -212,7 +213,7 @@ def main():
         if len(allymilitary)>=1:
            #rint(citizenlst)
            for soldier in allymilitary:
-              soldier.shoot(pygame.time,projectilelst)
+              soldier.shoot(pygame.time,projectilelst,enemylst)
               soldier.go(gameClock)
               soldier.walk(pygame.time)
               
@@ -396,8 +397,8 @@ def main():
                           
 
                            if cursor.getCollisionRect().colliderect(goldmine.getCollisionRect()):
-                              #print("----------------selected ------------------------")
-                              print(str(goldmine.occupied))
+                              #rint("----------------selected ------------------------")
+                              #rint(str(goldmine.occupied))
                               cursor.occupied = True
                               if goldmine.occupied ==False:
                                     #print("i am here")

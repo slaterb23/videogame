@@ -183,6 +183,8 @@ class Character(drawable):
 
 
 
+
+
     def getAngle(self):
        if self.velocity.x != 0 and self.velocity.y != 0:
          Angle = math.atan((self.velocity.y/self.velocity.x))*180/(math.pi)
@@ -196,7 +198,8 @@ class Character(drawable):
           return 0
     def getAnglestate(self):
        angle = self.getAngle()
-       
+       if angle is None:
+          angle = 0
        
        newangle = abs(angle)
        #print("this is angle"+ str(newangle))
