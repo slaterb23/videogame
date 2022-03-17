@@ -30,6 +30,7 @@ class Rifleman(Character):
       
 
     def quickshootfix(self):
+       
        self.shooting = False
        self.shootcursor = 1
        self.cocksound = pygame.mixer.Sound(os.path.join("sound","cocking.wav"))
@@ -37,6 +38,7 @@ class Rifleman(Character):
        self.direction = "0"
        self.enemy = None
        self.range = 200
+       self.cost= [0,25]
 
     def draw(self,surface):
         if [self.dead,self.shooting,self.going] == [False,False,False]:

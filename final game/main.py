@@ -1,4 +1,6 @@
 
+
+from xmlrpc.client import Boolean
 import pygame
 import os
 import random
@@ -29,6 +31,7 @@ def main():
    
    pygame.display.set_caption("The Uncivil Defense")
    
+   costregister = {"rifleman":[0,30], "citizen":[0,5], "barracks":[40,0]}
    screen = pygame.display.set_mode(list(SCREEN_SIZE))
 
    hurt = pygame.mixer.Sound(os.path.join("sound","hurt1.wav"))
@@ -122,16 +125,21 @@ def main():
    #barrack = building(barrackselectedpath,barrackpathlst[0],800,390)
    board = graphmap(SCREEN_SIZE)
    register = resourceregister()
+   register.addGold(50)
+   register.addWood(50)
    blitorder = queue()
    
    
       #rint(enemy.isDead())
 
+   
    timer = 0
    oldtime = 0
    warn = False
    Warnfont =  pygame.font.SysFont("Arial",29)
    warningtxt = Warnfont.render( "WARNING ENEMY APPROACHING",False,(255,0,0) )
+   Noresourcetxt = Warnfont.render("Not Enough Resources! ",False,(255,0,0))
+
    # main loop
    while RUNNING:
         time = int(pygame.time.get_ticks()/1000)
@@ -153,8 +161,8 @@ def main():
            
         if (time)%60 ==0 and time != 0 and time != oldtime:
            oldtime = time
-           randposx = random.randint(10,50)
-           randposy = random.randint(10,50)
+           randposx = random.randint(50,80)
+           randposy = random.randint(50,80)
 
            numenemies = random.randint(1,13)
            
@@ -194,6 +202,9 @@ def main():
         leftpanel.draw(screen)
         rightpanel.draw(screen)
         register.draw(screen)
+
+
+
         HPfont =  pygame.font.SysFont("Arial",40)
         homehp = HPfont.render( (" Castle Hitpoints :" + str(home.HP)),False,(0,0,0) )
         
@@ -342,12 +353,18 @@ def main():
                      if cursor.getCollisionRect().colliderect(button.getCollisionRect()):
                         if home.isselected():
 
-                           newcitizen = home.spawn("citizen")
+                           newcitizen = home.spawn("citizen",register)
+                           if type(newcitizen) == Boolean:
+                              screen.blit(Noresourcetxt,(800,60))
+                           else:
                            
-                           randomx = random.randint(-200,-40)
-                           randomy= random.randint(-200,-40)
-                           newcitizen.beginmoving(list((home.getPosition().x+randomx,home.getPosition().x+randomy)))
-                           citizenlst.append(newcitizen)
+                              randomx = random.randint(-200,-40)
+                              randomy= random.randint(-200,-40)
+                              newcitizen.beginmoving(list((home.getPosition().x+randomx,home.getPosition().x+randomy)))
+                              citizenlst.append(newcitizen)
+                              print("This is gold before: "+ str(register.gold))
+                              register.addGold(-1*costregister["citizen"][1])
+                              print("This is gold after: "+ str(register.gold))
                            
                               
                         
@@ -358,14 +375,20 @@ def main():
                         #       cursor.occupied = True
                         if buildings.isselected():
                            if cursor.getCollisionRect().colliderect(riflemanbutton.getCollisionRect()):
-                              riflesoldier = buildings.spawn("rifleman")
                               
-                              riflesoldier.quickshootfix()
-                              randomx = random.randint(-80,-40)
-                              randomy= random.randint(-100,-40)
-                              riflesoldier.beginmoving([randomx+buildings.getPosition().x,randomy + buildings.getPosition().y])
-                              allymilitary.append(riflesoldier)
-                        
+
+                              riflesoldier = buildings.spawn("rifleman",register)
+                              if type(riflesoldier) == Boolean:
+                                 print("++++++++++NO++++++++++++++++++")
+                              else:
+                              
+                                 riflesoldier.quickshootfix()
+                                 register.addGold(-1*costregister["rifleman"][1])
+                                 randomx = random.randint(-80,-40)
+                                 randomy= random.randint(-100,-40)
+                                 riflesoldier.beginmoving([randomx+buildings.getPosition().x,randomy + buildings.getPosition().y])
+                                 allymilitary.append(riflesoldier)
+                           
                         
                            
                      for buildings in buildinglst:
@@ -394,6 +417,8 @@ def main():
                            if cursor.getCollisionRect().colliderect(barrackbutton.getCollisionRect()):
                                  barracks = building(barrackselected,barrackdir,barrackpath,barrackdir,300,400,0)
                                  barracks.changecolliderect(barrackcollide)
+                                 
+                                 register.addWood(-1*costregister["barracks"][0])
                                  unbuiltlst.append(barracks)
 
                                  cursor.occupied = True

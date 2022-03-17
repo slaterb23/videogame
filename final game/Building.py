@@ -6,6 +6,8 @@ from drawable import drawable
 from rifleman import Rifleman
 import os 
 
+costregister = {"rifleman":[0,30], "citizen":[0,5]}
+
 class building(object):
    '''
    Implements the Orb object
@@ -66,11 +68,19 @@ class building(object):
        self.flagx = flagx
        self.flagy = flagy
 
-   def spawn(self,spawnunit):
+   def spawn(self,spawnunit,register):
        riflepath = os.path.join("images\Rifleman\Walking","180walking1.png")
        if spawnunit == "rifleman":
-          return self.unitdict[spawnunit](riflepath,self.position.x-40, self.position.y-40)
-       return self.unitdict[spawnunit](self.position.x+10, self.position.y+10)
+          if register.existsenough(costregister["rifleman"][0],costregister["rifleman"][1]):
+          
+            return self.unitdict[spawnunit](riflepath,self.position.x-40, self.position.y-40)
+          else:
+             return False
+       if register.existsenough(costregister["citizen"][0],costregister["citizen"][1]):
+         return self.unitdict[spawnunit](self.position.x+10, self.position.y+10)
+       else:
+          return False
+       
 
    def recvdamage(self,damage):
       self.HP -= damage

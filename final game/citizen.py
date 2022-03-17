@@ -67,6 +67,7 @@ class citizen(Character):
       self.starttime =1
       self.chopping = False
       self.chopcursor =1
+      self.cost = [0,10]
 
 
    
@@ -107,9 +108,9 @@ class citizen(Character):
       '''
        Draws the citizen
       '''    
-      pygame.draw.rect(surface,(0,0,255),self.getCollisionRect())  
-      for item in self.sensorls:
-         item.draw(surface)
+      #pygame.draw.rect(surface,(0,0,255),self.getCollisionRect())  
+      # for item in self.sensorls:
+      #    item.draw(surface)
 
       #rint("1  X Velocity : "+ str(round(self.velocity.x)) + " Y  Velocity" + str(round(self.velocity.y)))
       #print("   x direction : "+ str(round(self.position.x)) + " Y direction" + str(round(self.position.y)))
