@@ -91,7 +91,8 @@ class drawable(object):
                             WORLD_SIZE[1] - SCREEN_SIZE[1])))
 
    def getCollisionRect(self):
-      newRect =  self.position + self.image.get_rect()
+      oldrect = self.image.get_rect()
+      modified = oldrect.inflate(-0.3,-0.3)
+      newRect =  self.position + modified 
       return newRect
-
 

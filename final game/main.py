@@ -5,6 +5,7 @@ import random
 from vector2D import Vector2
 from citizen import citizen
 from resource import resource
+from Queue import queue
 from mouse import mouse
 from Building import building
 from Panel import panel
@@ -23,6 +24,7 @@ def main():
    pygame.init()
    pygame.mixer.init()
    # load and set the logo
+   
    
    
    pygame.display.set_caption("The Uncivil Defense")
@@ -55,6 +57,7 @@ def main():
    homeselectpathdir = "images"
    barrackdir= "images\Buildings"
    barrackpath = "barracks"
+   barrackcollide = pygame.image.load(os.path.join("images", "citizencollisionrect.png")).convert()
 
    
    home = building(homeselectedpath,homeselectpathdir,homepath,homepathdir,400,390)
@@ -72,6 +75,11 @@ def main():
    #path = os.path.join("images", "sphere1.png")
 
    cursor = mouse(mouse1)
+   point = panel(mouse1,mouse1,0,0)
+   uppoint = panel(mouse1,mouse1,0,0)
+   downpoint = panel(mouse1,mouse1,0,0)
+   rightpoint = panel(mouse1,mouse1,0,0)
+   leftpoint = panel(mouse1,mouse1,0,0)
    #Orb = orb(path,velocity,position,offset)
    #Orb.draw()
 
@@ -114,9 +122,9 @@ def main():
    #barrack = building(barrackselectedpath,barrackpathlst[0],800,390)
    board = graphmap(SCREEN_SIZE)
    register = resourceregister()
+   blitorder = queue()
    
-   for enemy in enemylst:
-      pass
+   
       #rint(enemy.isDead())
 
    timer = 0
@@ -134,7 +142,7 @@ def main():
            warn = False
 
         #rint(str(time) + " THis is the timer " + str(timer))
-        if (time)%25 ==0 and time != 0:
+        if (time)%55 ==0 and time != 0:
            timer = time
            warn = True
            siren.play()
@@ -143,20 +151,36 @@ def main():
            
            
            
-        if (time)%30 ==0 and time != 0 and time != oldtime:
+        if (time)%60 ==0 and time != 0 and time != oldtime:
            oldtime = time
-           newDummy = Dummy(dummypath,50,50)
-           newDummy.beginmoving((homepos[0] + 50, homepos[1]+50))
-           enemylst.append(newDummy)
+           randposx = random.randint(10,50)
+           randposy = random.randint(10,50)
+
+           numenemies = random.randint(1,13)
+           
+           
+
+           for i in range (numenemies):
+              randposx = random.randint(-10,80)
+              randposy = random.randint(-30,50)
+
+              newDummy = Dummy(dummypath,randposx,randposy)
+              newDummy.beginmoving((homepos[0] + 50, homepos[1]+50))
+
+              enemylst.append(newDummy)
+          
 
 
 
         
 
         for bullet in projectilelst:
+           if bullet.dead ==True:
+              projectilelst.remove(bullet)
            for enemy in enemylst:
               if bullet.getCollisionRect().colliderect(enemy.getCollisionRect()):
                  enemy.recvDamage(4)
+                 bullet.die()
                  hurt.play()
 
       # Draw everything, adjust by offset
@@ -181,9 +205,9 @@ def main():
         if len(enemylst) > 0:
          for enemy in enemylst:
             enemy.draw(screen)
-            enemy.go(gameClock)
+            enemy.go(gameClock,buildinglst)
             if enemy.isDead():
-                print("remving")
+                #rint("remving")
                 enemylst.remove(enemy)
             elif enemy.getCollisionRect().colliderect(home.getCollisionRect()):
                home.recvdamage(20)
@@ -193,6 +217,10 @@ def main():
            for buildings in buildinglst:
               if buildings.isselected():
                  isbarrackselected = True
+               
+              buildings.changecolliderect((0.5,0.5))
+            
+              #buildings.drawcollide(screen)
                  
 
         riflemanbutton.draw(screen,isbarrackselected)
@@ -214,7 +242,7 @@ def main():
            #rint(citizenlst)
            for soldier in allymilitary:
               soldier.shoot(pygame.time,projectilelst,enemylst)
-              soldier.go(gameClock)
+              soldier.go(gameClock,buildinglst)
               soldier.walk(pygame.time)
               
               soldier.draw(screen)
@@ -225,17 +253,29 @@ def main():
 
               
         if len(citizenlst)>=1:
+           test = citizenlst[0]
            #rint(citizenlst)
            for citizen in citizenlst:
+           
+              
+              
               citizen.mine(pygame.time,register)
               citizen.chop(pygame.time,register)
-              citizen.go(gameClock)
-              citizen.update(citizenlst)
+              citizen.go(gameClock,buildinglst,citizen.building)
+              #citizen.update(citizenlst)
               citizen.walk(pygame.time)
               citizen.draw(screen)
               citizen.build(pygame.time)
               if citizen.isselected():
                  selectedexists = True
+      
+       
+        
+      
+
+        for citizen in citizenlst:
+           if citizen not in blitorder.orderlst:
+              blitorder.adding(citizen)
 
 
 
@@ -303,6 +343,7 @@ def main():
                         if home.isselected():
 
                            newcitizen = home.spawn("citizen")
+                           
                            randomx = random.randint(-200,-40)
                            randomy= random.randint(-200,-40)
                            newcitizen.beginmoving(list((home.getPosition().x+randomx,home.getPosition().x+randomy)))
@@ -318,6 +359,7 @@ def main():
                         if buildings.isselected():
                            if cursor.getCollisionRect().colliderect(riflemanbutton.getCollisionRect()):
                               riflesoldier = buildings.spawn("rifleman")
+                              
                               riflesoldier.quickshootfix()
                               randomx = random.randint(-80,-40)
                               randomy= random.randint(-100,-40)
@@ -351,6 +393,7 @@ def main():
                            selectedcitizenlst.append(man)
                            if cursor.getCollisionRect().colliderect(barrackbutton.getCollisionRect()):
                                  barracks = building(barrackselected,barrackdir,barrackpath,barrackdir,300,400,0)
+                                 barracks.changecolliderect(barrackcollide)
                                  unbuiltlst.append(barracks)
 
                                  cursor.occupied = True
@@ -375,6 +418,7 @@ def main():
                         builder.beginmoving((tobuild.position.x-20, tobuild.position.y+tobuild.getHeight()-42))
                         
                         buildinglst.append(unbuiltlst[0])
+                        
                         
                      for soldier in allymilitary:
                         if soldier.isselected():
@@ -414,7 +458,7 @@ def main():
                               man.beginmoving(list(pygame.mouse.get_pos()))
                            if cursor.getCollisionRect().colliderect(tree.getCollisionRect()):
                               #print("----------------selected ------------------------")
-                              print(str(goldmine.occupied))
+                              #rint(str(goldmine.occupied))
                               cursor.occupied = True
                               if tree.occupied ==False:
                                     #print("i am here")

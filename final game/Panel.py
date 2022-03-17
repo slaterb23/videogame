@@ -4,7 +4,7 @@ import math
 import random
 from vector2D import Vector2
 from physics import Distance,rad
-from citizen import citizen
+
 
 class panel(object):
    '''

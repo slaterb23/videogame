@@ -16,8 +16,11 @@ class building(object):
       initializes the Orb oject
       '''
 
+
+      
       #initialize variables
       
+      self.inflate = None
       
       self.velocity = Vector2(0,0)
       self.position = Vector2(0,0)
@@ -26,6 +29,7 @@ class building(object):
 
       self.progress = progress
       self.maxprogress = 5
+      
       
       self.buildcount = 1
       self.pathdir = pathdir
@@ -39,6 +43,7 @@ class building(object):
       self.reserveimage = pygame.image.load(self.path).convert()
       self.selectedimage = pygame.image.load(self.selectedpath).convert()
       self.image = self.reserveimage
+      self.collideimage = self.reserveimage
       self.dead = False
       self.buildlevel = 0
       self.unitdict = {"citizen":citizen, "rifleman":Rifleman}
@@ -178,10 +183,37 @@ class building(object):
       Returns the positional vector of the orb
       '''
       return self.position
+   
+   def changecolliderect(self,imagepath):
+      #rint("This is collide image" + str(self.collideimage))
+      self.collideimage = imagepath
+      
     
    def getCollisionRect(self):
-      newRect =  self.position + self.image.get_rect()
-      return newRect
+      #rint("this is slef.inflate" + str(self.inflate))
+      
+         copy = self.position
+         # copy.x += 10
+         # copy.y += 10
+
+         oldrect = self.image.get_rect()
+         modified = oldrect
+         newRect =  self.position + modified 
+
+         return newRect
+   def drawcollide(self,screen):
+      oldrect = self.image.get_rect()
+      modified = oldrect
+
+      newRect =  self.position + modified
+      newRect.inflate(-0.5,1)
+     
+      pygame.draw.rect(screen,(255,255,255),newRect)
+   
+         
+       
+ 
+
 
 
          

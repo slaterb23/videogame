@@ -106,7 +106,14 @@ class citizen(Character):
    def draw(self,surface):
       '''
        Draws the citizen
-      '''      
+      '''    
+      pygame.draw.rect(surface,(0,0,255),self.getCollisionRect())  
+      for item in self.sensorls:
+         item.draw(surface)
+
+      #rint("1  X Velocity : "+ str(round(self.velocity.x)) + " Y  Velocity" + str(round(self.velocity.y)))
+      #print("   x direction : "+ str(round(self.position.x)) + " Y direction" + str(round(self.position.y)))
+      
       if [self.dead,self.mining,self.going,self.chopping,self.building] == [False,False,False,False,False]:
       #its in a nothing state here, doing nothing
          self.image= self.imageres
@@ -191,10 +198,6 @@ class citizen(Character):
         
             if (abs(self.starttime-time)> 2):
                self.changeminetime(time) 
-              
-        
-                     
-               
                # Draw the mining citizen ( Drawing it here instead of Draw method because of increased clarity)
                self.mineimage = pygame.image.load(os.path.join("images","axe"+str(max(1,round(self.minecursor/frame)))+".png")).convert()
                self.mineimage.set_colorkey(self.image.get_at((0,0)))
@@ -204,8 +207,6 @@ class citizen(Character):
                # There are 9 animation frames with a wait time of 6 frames, so whenever the frame cursor is above 54, it recurses back to one
                if self.minecursor <=9*frame:
                   self.minecursor +=1
-               
-               
                if self.minecursor >9*frame:
                   self.minecursor = 1
                if self.minecursor ==4*frame:

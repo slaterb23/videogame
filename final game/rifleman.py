@@ -53,19 +53,15 @@ class Rifleman(Character):
 
          
         
-        if self.shooting == True:
-           self.walking = False
+        if self.shooting == True and self.going == True or self.shooting ==True:
+           
            self.image = self.shootimage
            surface.blit(self.image, list(self.position))
            self.image.set_colorkey(self.image.get_at((0,0)))
 
 
-        if self.going == True:
-           self.shooting == False
-        if self.shooting == True:
-           self.going == False
-        if self.going == True:
-         self.shooting = False
+        if self.going == True and self.shooting == False:
+         
          self.image = self.walkimage
          surface.blit(self.image, list(self.position))
          self.image.set_colorkey(self.image.get_at((0,0)))
@@ -137,7 +133,7 @@ class Rifleman(Character):
             
             direction = self.direction
             
-            print("This is self direction ", self.direction, "this is angle " + str(angle))
+            #rint("This is self direction ", self.direction, "this is angle " + str(angle))
 
             self.shootimage = pygame.image.load(os.path.join("images\Rifleman\Shooting", direction+"shooting"+str(max(1,round(self.shootcursor/frame)))+".png")).convert()
               #Blit it here instead of the draw method for better clarity
@@ -198,6 +194,8 @@ class Rifleman(Character):
                   
             direction = self.getAnglestate()
             self.direction = direction
+
+            
             if self.getAnglestate() not in ("270","180","90","0"):
                direction = "0"
                self.direction = direction
@@ -205,6 +203,7 @@ class Rifleman(Character):
               #Blit it here instead of the draw method for better clarity
             self.walkimage.set_colorkey(self.image.get_at((0,0)))
             if (time -self.starttime > 0.7):
+
                # Update time every 2.1 ish seconds
                
                self.changetime(time)

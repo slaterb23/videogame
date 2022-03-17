@@ -49,5 +49,7 @@ class Projectile(drawable):
         newposx = oldpos.x +self.velocity.x*time.get_time()/1000
         self.position.x = newposx
         self.position.y = newposy
+    def die(self):
+        self.dead = True
         
     
