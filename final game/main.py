@@ -32,7 +32,7 @@ def main():
    pygame.display.set_caption("The Uncivil Defense")
    
    costregister = {"rifleman":[0,30], "citizen":[0,5], "barracks":[40,0]}
-   screen = pygame.display.set_mode(list(SCREEN_SIZE))
+   screen = pygame.display.set_mode(list(SCREEN_SIZE), pygame.FULLSCREEN)
 
    hurt = pygame.mixer.Sound(os.path.join("sound","hurt1.wav"))
    siren = pygame.mixer.Sound(os.path.join("sound","siren.wav"))
@@ -378,6 +378,7 @@ def main():
                               
 
                               riflesoldier = buildings.spawn("rifleman",register)
+                              print("gold " +str(register.gold))
                               if type(riflesoldier) == Boolean:
                                  print("++++++++++NO++++++++++++++++++")
                               else:
