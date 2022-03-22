@@ -34,6 +34,10 @@ class Character(drawable):
         self.selectedim = pygame.image.load(os.path.join("images","selectedpointer.png")).convert()
         self.adjustimage =  os.path.join("images","mouse.png")
         self.rangeimage = os.path.join("images\Rifleman","riflerangerect.png")
+        
+        self.rangedownim = self.rangeimage
+        self.rangerightim = self.rangeimage
+        self.rangeleftim = self.rangeimage
         self.centerpos = self.position
        
         self.centerx = 0.5
@@ -50,7 +54,21 @@ class Character(drawable):
         self.right = panel(self.adjustimage,self.adjustimage,0,0)
 
         self.rangeup = panel(self.rangeimage,self.rangeimage,0,0)
+        self.rangedown = panel(self.rangeimage,self.rangeimage,0,0)
+        self.rangeright = panel(self.rangeimage,self.rangeimage,0,0)
+        self.rangeleft = panel(self.rangeimage,self.rangeimage,0,0)
+
+
+        
+       
+
+        self.rangeup.image = pygame.transform.rotate(self.rangeright.image,270)
+        self.rangeleft.image = pygame.transform.rotate(self.rangeup.image,180)
+        self.rangedown.image = pygame.transform.rotate(self.rangeup.image,90)
+
         self.sensorls = [self.up,self.down,self.left,self.right]
+        self.rangelst = [self.rangeup,self.rangedown,self.rangeright,self.rangeleft]
+        
         self.xsensormin = 15
         self.ysensormin = 15
         self.xsensormax = 155
@@ -87,8 +105,13 @@ class Character(drawable):
       cpointy = self.position.y +self.centery*self.getHeight()  
       cpointx = self.position.x +self.centerx*self.getWidth() 
 
-      self.rangeup.x = cpointx
-      self.rangeup.y = cpointy
+      self.rangeup.position.x = cpointx
+      self.rangeup.position.y = cpointy
+
+      for rangerect in self.rangelst:
+         rangerect.position.x = cpointx
+         rangerect.position.y = cpointy
+
       self.up.position.x = cpointx 
       self.up.position.y = cpointy - self.veradjust
 
