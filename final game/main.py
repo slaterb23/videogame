@@ -16,7 +16,9 @@ from ResourceRegister import resourceregister
 import testgraph
 from testgraph import astar, graphmap
 from rifleman import Rifleman
+from Cavalry import cavalry
 from dummy import Dummy
+
 SCREEN_SIZE = (1200,900)
 
 
@@ -142,8 +144,11 @@ def main():
 
    # main loop
    while RUNNING:
+        
         time = int(pygame.time.get_ticks()/1000)
-        #print(time)
+
+        
+        
         
         screen.fill((255,255,255))
         if abs(timer -time) > 3 and timer != 0:
@@ -312,8 +317,12 @@ def main():
               rand = random.randint(0,1)
 
               if event.type == pygame.KEYDOWN:
-                  tutorial = pygame.image.load(os.path.join("images", "axe1.png")).convert()
+                  #tutorial = pygame.image.load(os.path.join("images", "axe1.png")).convert()
                   #screen.blit(tutorial,[500,500])
+                  pass
+
+
+                  
               if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                # change the value to False, to exit the main loop
                  RUNNING = False
@@ -362,9 +371,9 @@ def main():
                               randomy= random.randint(-200,-40)
                               newcitizen.beginmoving(list((home.getPosition().x+randomx,home.getPosition().x+randomy)))
                               citizenlst.append(newcitizen)
-                              print("This is gold before: "+ str(register.gold))
+                              #rint("This is gold before: "+ str(register.gold))
                               register.addGold(-1*costregister["citizen"][1])
-                              print("This is gold after: "+ str(register.gold))
+                              #rint("This is gold after: "+ str(register.gold))
                            
                               
                         
@@ -376,11 +385,12 @@ def main():
                         if buildings.isselected():
                            if cursor.getCollisionRect().colliderect(riflemanbutton.getCollisionRect()):
                               
+                              cav = cavalry("Red",300,400)
 
                               riflesoldier = buildings.spawn("rifleman",register)
-                              print("gold " +str(register.gold))
+                              #rint("gold " +str(register.gold))
                               if type(riflesoldier) == Boolean:
-                                 print("++++++++++NO++++++++++++++++++")
+                                 pass#rint("++++++++++NO++++++++++++++++++")
                               else:
                               
                                  riflesoldier.quickshootfix()
@@ -389,6 +399,7 @@ def main():
                                  randomy= random.randint(-100,-40)
                                  riflesoldier.beginmoving([randomx+buildings.getPosition().x,randomy + buildings.getPosition().y])
                                  allymilitary.append(riflesoldier)
+                                 allymilitary.append(cav)
                            
                         
                            

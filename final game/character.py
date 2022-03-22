@@ -33,6 +33,7 @@ class Character(drawable):
         self.starttime = 1
         self.selectedim = pygame.image.load(os.path.join("images","selectedpointer.png")).convert()
         self.adjustimage =  os.path.join("images","mouse.png")
+        self.rangeimage = os.path.join("images\Rifleman","riflerangerect.png")
         self.centerpos = self.position
        
         self.centerx = 0.5
@@ -47,6 +48,8 @@ class Character(drawable):
         self.down= panel(self.adjustimage,self.adjustimage,0,0)
         self.left= panel(self.adjustimage,self.adjustimage,0,0)
         self.right = panel(self.adjustimage,self.adjustimage,0,0)
+
+        self.rangeup = panel(self.rangeimage,self.rangeimage,0,0)
         self.sensorls = [self.up,self.down,self.left,self.right]
         self.xsensormin = 15
         self.ysensormin = 15
@@ -84,6 +87,8 @@ class Character(drawable):
       cpointy = self.position.y +self.centery*self.getHeight()  
       cpointx = self.position.x +self.centerx*self.getWidth() 
 
+      self.rangeup.x = cpointx
+      self.rangeup.y = cpointy
       self.up.position.x = cpointx 
       self.up.position.y = cpointy - self.veradjust
 
@@ -195,7 +200,7 @@ class Character(drawable):
                   
 
                   adjustedspeed = self.calculatepath(possdirections,xdiff,ydiff)
-                  print("========DIST: "+ str(round(Distance(start,end)-self.tolerance)))
+                  #rint("========DIST: "+ str(round(Distance(start,end)-self.tolerance)))
                   if Distance(start,end)-self.tolerance > 36:
                      
 
@@ -353,18 +358,18 @@ class Character(drawable):
                  
           if xdiff < 0 and "right" in paths:
              self.pathstate = ""
-             print("right")
+             #rint("right")
              self.lastspeed = "right"
              return speeddict["right"]
              
           if xdiff > 0 and "left" in paths:
              self.pathstate = ""
-             print("left")
+             #rint("left")
              self.lastspeed = "left"
              return speeddict["left"]
              
           if ydiff <self.ysensormin and "down" in paths:
-             print("down")
+             #rint("down")
              self.lastspeed = "down"
              return speeddict["down"]
 
@@ -405,7 +410,7 @@ class Character(drawable):
           self.pathstate = "2"
       
           
-       print("selfstate is " + self.pathstate)
+       #rint("selfstate is " + self.pathstate)
        if self.pathstate != "":
           return speeddict[self.lastspeed]
        if xdiff >0 and ydiff >0 and self.pathstate =="":
@@ -416,7 +421,7 @@ class Character(drawable):
 
                 for string in paths:
                    pats += (" ,"+string)
-                print(" This is speed1 "  + priority[index] + " " + pats)
+                #rint(" This is speed1 "  + priority[index] + " " + pats)
                 
                 self.lastspeed = priority[index]
                 return speeddict[priority[index]]
@@ -433,7 +438,7 @@ class Character(drawable):
              if priority[index] in paths:
                 for string in paths:
                    pats += (" ,"+string)
-                print(" This is speed2 "  + priority[index] + " " + pats)
+                #rint(" This is speed2 "  + priority[index] + " " + pats)
                
                 self.lastspeed = priority[index]
                 return speeddict[priority[index]]
@@ -447,7 +452,7 @@ class Character(drawable):
              if priority[index] in paths:
                 for string in paths:
                    pats += (" ,"+string)
-                print(" This is speed3 "  + priority[index] + " " + pats)
+                #rint(" This is speed3 "  + priority[index] + " " + pats)
                 
                 self.lastspeed = priority[index]
                 return speeddict[priority[index]]
@@ -462,7 +467,7 @@ class Character(drawable):
                 pats = ' '
                 for string in paths:
                    pats += (" ,"+string)
-                print(" This is speed4 "  + priority[index] + " " + pats)
+                #rint(" This is speed4 "  + priority[index] + " " + pats)
                 self.lastspeed = priority[index]
                 return speeddict[priority[index]]
                 

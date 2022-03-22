@@ -1,5 +1,4 @@
 
-from re import X
 import torch
 from doctest import ELLIPSIS_MARKER
 import pygame
@@ -9,6 +8,7 @@ import random
 from vector2D import Vector2
 from physics import Distance,rad
 from projectile import Projectile
+from Panel import panel
 
 
 from character import Character
@@ -27,10 +27,11 @@ class Rifleman(Character):
         self.shootcursor = 1
         self.cocksound = pygame.mixer.Sound(os.path.join("sound","cocking.wav"))
         self.shootsound = pygame.mixer.Sound(os.path.join("sound","rifleshooting.wav"))
-      
+        
 
     def quickshootfix(self):
-       
+       self.collisionim =os.path.join("images\Rifleman","riflecollisionrect.png")
+       self.collideim = panel(self.collisionim,self.collisionim,0,0)
        self.shooting = False
        self.shootcursor = 1
        self.cocksound = pygame.mixer.Sound(os.path.join("sound","cocking.wav"))
@@ -39,8 +40,32 @@ class Rifleman(Character):
        self.enemy = None
        self.range = 200
        self.cost= [0,25]
+       self.veradjust= 30
+       self.adjust= 20
+       
+    def getCollisionRect(self):
+       oldrect = self.collideim.getCollisionRect()
+       
+       return oldrect
+
+
+    def updatecollide(self):
+      cpointy = self.position.y +self.centery*self.getHeight()+19
+      cpointx = self.position.x +self.centerx*self.getWidth()-8
+
+      self.collideim.position.x = cpointx 
+      self.collideim.position.y = cpointy - self.veradjust
+       
+
+
 
     def draw(self,surface):
+
+        self.updatecollide()
+        self.rangeup.draw(surface)
+        pygame.draw.rect(surface,(0,0,255),self.getCollisionRect())  
+        for item in self.sensorls:
+          item.draw(surface)
         if [self.dead,self.shooting,self.going] == [False,False,False]:
       #its in a nothing state here, doing nothing
          
@@ -55,11 +80,17 @@ class Rifleman(Character):
 
          
         
-        if self.shooting == True and self.going == True or self.shooting ==True:
-           
+        if self.shooting == True and self.going == True:
+           self.shooting=False
+           self.image = self.walkimage
+           surface.blit(self.image, list(self.position))
+           self.image.set_colorkey(self.image.get_at((0,0)))
+         
+        elif self.shooting ==True:
            self.image = self.shootimage
            surface.blit(self.image, list(self.position))
            self.image.set_colorkey(self.image.get_at((0,0)))
+
 
 
         if self.going == True and self.shooting == False:
@@ -97,7 +128,9 @@ class Rifleman(Character):
       
 
 
-      
+      if self.going ==True:
+         self.shooting =False
+         self.walk(pygame.time)
       #Weird time, but trial and error shows 28 is best for walking
       time = clock.get_ticks()/28
 
