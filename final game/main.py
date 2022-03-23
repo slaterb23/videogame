@@ -1,6 +1,6 @@
 
 
-from xmlrpc.client import Boolean
+
 import pygame
 import os
 import random
@@ -19,7 +19,7 @@ from rifleman import Rifleman
 from Cavalry import cavalry
 from dummy import Dummy
 
-SCREEN_SIZE = (1200,900)
+SCREEN_SIZE = (1400,900)
 
 
 def main():
@@ -34,13 +34,17 @@ def main():
    pygame.display.set_caption("The Uncivil Defense")
    
    costregister = {"rifleman":[0,30], "citizen":[0,5], "barracks":[40,0]}
-   screen = pygame.display.set_mode(list(SCREEN_SIZE), pygame.FULLSCREEN)
+   screen = pygame.display.set_mode(list(SCREEN_SIZE))
 
    hurt = pygame.mixer.Sound(os.path.join("sound","hurt1.wav"))
    siren = pygame.mixer.Sound(os.path.join("sound","siren.wav"))
    # Let's make a background so we can see if we're moving
    background = pygame.image.load(os.path.join("images", "grass6.jpg")).convert()
    collide = pygame.image.load(os.path.join("images", "citizencollisionrect.png")).convert()
+   leftclickpath =os.path.join("images\Tutorial", "leftclick.png")
+   rightclickpath = os.path.join("images\Tutorial", "rightclick.png")
+   leftclick = panel(leftclickpath,leftclickpath,800,400)
+   rightclick = panel(rightclickpath,rightclickpath,300,400)
    mouse1 =os.path.join("images", "mouse.png")
    goldpath = os.path.join("images", "gold.png")
    treepath = os.path.join("images","tree.png")
@@ -49,6 +53,7 @@ def main():
    buttonpath = os.path.join("images", "citizenbutton.png")
    barrackbuttonpath =os.path.join("images\Buttons", "barracksbutton.png")
    riflemanbuttonpath = os.path.join("images\Buttons", "riflemanbutton.png")
+
 
 
    citizenpath = os.path.join("images", "citizen3.png")
@@ -95,6 +100,8 @@ def main():
    allymilitary= []
    selectedcitizenlst = []
    projectilelst = []
+   leftclicklst = []
+   rightclicklst =[]
 
    enemylst = []
    for enemy in enemylst:
@@ -127,7 +134,7 @@ def main():
    #barrack = building(barrackselectedpath,barrackpathlst[0],800,390)
    board = graphmap(SCREEN_SIZE)
    register = resourceregister()
-   register.addGold(50)
+   register.addGold(500)
    register.addWood(50)
    blitorder = queue()
    
@@ -140,7 +147,7 @@ def main():
    warn = False
    Warnfont =  pygame.font.SysFont("Arial",29)
    warningtxt = Warnfont.render( "WARNING ENEMY APPROACHING",False,(255,0,0) )
-   Noresourcetxt = Warnfont.render("Not Enough Resources! ",False,(255,0,0))
+   
 
    # main loop
    while RUNNING:
@@ -155,7 +162,7 @@ def main():
            warn = False
 
         #rint(str(time) + " THis is the timer " + str(timer))
-        if (time)%55 ==0 and time != 0:
+        if (time)%25 ==0 and time != 0:
            timer = time
            warn = True
            siren.play()
@@ -164,12 +171,12 @@ def main():
            
            
            
-        if (time)%60 ==0 and time != 0 and time != oldtime:
+        if (time)%30 ==0 and time != 0 and time != oldtime:
            oldtime = time
            randposx = random.randint(50,80)
            randposy = random.randint(50,80)
 
-           numenemies = random.randint(1,13)
+           numenemies = random.randint(1,7)
            
            
 
@@ -190,11 +197,11 @@ def main():
         for bullet in projectilelst:
            if bullet.dead ==True:
               projectilelst.remove(bullet)
-           for enemy in enemylst:
-              if bullet.getCollisionRect().colliderect(enemy.getCollisionRect()):
-                 enemy.recvDamage(4)
-                 bullet.die()
-                 hurt.play()
+         #   for enemy in enemylst:
+         #      if bullet.getCollisionRect().colliderect(enemy.getCollisionRect()):
+         #         enemy.recvDamage(4)
+         #         bullet.die()
+         #         hurt.play()
 
       # Draw everything, adjust by offset
         screen.blit(background,list((0,0)))
@@ -312,6 +319,8 @@ def main():
         
            
          
+         
+        
         for event in pygame.event.get():
           
               rand = random.randint(0,1)
@@ -363,7 +372,7 @@ def main():
                         if home.isselected():
 
                            newcitizen = home.spawn("citizen",register)
-                           if type(newcitizen) == Boolean:
+                           if newcitizen in (True,False):
                               screen.blit(Noresourcetxt,(800,60))
                            else:
                            
@@ -389,7 +398,7 @@ def main():
 
                               riflesoldier = buildings.spawn("rifleman",register)
                               #rint("gold " +str(register.gold))
-                              if type(riflesoldier) == Boolean:
+                              if riflesoldier in (True,False):
                                  pass#rint("++++++++++NO++++++++++++++++++")
                               else:
                               

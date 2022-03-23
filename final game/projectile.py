@@ -1,5 +1,5 @@
 from email.mime import image
-import torch
+
 from doctest import ELLIPSIS_MARKER
 import pygame
 import os
@@ -11,10 +11,13 @@ from drawable import drawable
 
 class Projectile(drawable):
 
-    def __init__(self,xposition,yposition,velocity = 300,angle = 90):
+    def __init__(self,xposition,yposition,velocity = 300,angle = 90,enemies=None,damage=10):
         path = os.path.join("images\Projectiles","riflebullet.png")
         self.dead = False
         self.angle = angle
+        self.enemies = enemies
+        self.attack = damage
+
         
         super().__init__(path,xposition,yposition)
         rad = angle*math.pi/180
@@ -49,6 +52,11 @@ class Projectile(drawable):
         newposx = oldpos.x +self.velocity.x*time.get_time()/1000
         self.position.x = newposx
         self.position.y = newposy
+
+        for enemy in self.enemies:
+            if self.getCollisionRect().colliderect(enemy.getCollisionRect()):
+                enemy.recvDamage(self.attack)
+                self.dead = True
     def die(self):
         self.dead = True
         

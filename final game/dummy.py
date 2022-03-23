@@ -1,5 +1,4 @@
 
-import torch
 from doctest import ELLIPSIS_MARKER
 import pygame
 import os

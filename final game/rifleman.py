@@ -1,5 +1,4 @@
 
-import torch
 from doctest import ELLIPSIS_MARKER
 import pygame
 import os
@@ -42,6 +41,25 @@ class Rifleman(Character):
        self.cost= [0,25]
        self.veradjust= 30
        self.adjust= 20
+
+       ###########Sesning the enemy
+       self.rangeimage = os.path.join("images\Rifleman","riflerangerect.png")
+       self.verimage= os.path.join("images\Rifleman","uprange.png")
+
+       ####Sensing the direction
+      
+
+       self.rangeup = panel(self.verimage,self.verimage,0,0)
+       self.rangedown = panel(self.verimage,self.verimage,0,0)
+       self.rangeright = panel(self.rangeimage,self.rangeimage,0,0)
+       self.rangeleft = panel(self.rangeimage,self.rangeimage,0,0)
+
+       self.rangelst = [self.rangeup,self.rangedown,self.rangeright,self.rangeleft]
+
+
+
+
+
        
     def getCollisionRect(self):
        oldrect = self.collideim.getCollisionRect()
@@ -62,10 +80,19 @@ class Rifleman(Character):
     def draw(self,surface):
 
         self.updatecollide()
-        self.rangeup.draw(surface)
-        pygame.draw.rect(surface,(0,0,255),self.getCollisionRect())  
-        for item in self.sensorls:
-          item.draw(surface)
+        self.updaterange()
+        #self.rangeup.draw(surface)
+        #pygame.draw.rect(surface,(0,0,255),self.getCollisionRect())
+
+          
+
+      #   for item in self.rangelst:
+      #       item.draw(surface)
+           #print("this is x, " , str(item.position.x))
+        #"Length of range " + str(len(self.rangelst)))
+
+      #   for item in self.sensorls:
+      #     item.draw(surface)
         if [self.dead,self.shooting,self.going] == [False,False,False]:
       #its in a nothing state here, doing nothing
          
@@ -102,16 +129,39 @@ class Rifleman(Character):
 
          
 
-   
+    def updaterange(self):
+      cpointy = self.position.y +self.centery*self.getHeight()  
+      cpointx = self.position.x +self.centerx*self.getWidth() 
+
+      self.rangeup.position.x = cpointx-6
+      self.rangeup.position.y = cpointy-300
+
+      self.rangedown.position.x = cpointx-6
+      self.rangedown.position.y = cpointy+60
+
+      self.rangeleft.position.x = cpointx-330
+      self.rangeleft.position.y = cpointy-8
+
+
+      self.rangeright.position.x = cpointx+20
+      self.rangeright.position.y = cpointy-12
+
     def goshoot(self,target =None):
        self.target = target
        self.shooting = True
-    def shoot(self,clock,projectilelst,enemylst,framerate = 3):
+    def shoot(self,clock,projectilelst,enemylst,framerate = 5):
       ''''
       Walks the citizen as per the requested frame rate      
       '''
-      
+      time = clock.get_ticks()/28
+
       frame =framerate
+
+      distancedict = {}
+
+      sortedenemy = []
+      
+      self.shootimage = self.image
 
       self.shooting = False
       for enemy in enemylst:
@@ -119,99 +169,91 @@ class Rifleman(Character):
          ydiff = self.getPosition().y -enemy.getPosition().y
          xdiff= min(xdiff, 0.0001)
          angle = (abs(math.atan(ydiff/xdiff)))*180/(math.pi)
-         distance = Distance(list(enemy.getPosition()),list(self.getPosition()))
-         #rint(" Distance is " + str(Distance(list(enemy.getPosition()),list(self.getPosition()))))
-
-         if distance < self.range: 
-            self.shooting =True
-
+         
       
+         for rect in self.rangelst:
+            if enemy.getCollisionRect().colliderect(rect.getCollisionRect()):
+               distance = Distance(list(enemy.getPosition()),list(self.getPosition()))
+               self.shooting = True
+               
 
-
+               distancedict[distance]=enemy
+               sortedenemy.append(distance)
+        
+         
       if self.going ==True:
          self.shooting =False
          self.walk(pygame.time)
-      #Weird time, but trial and error shows 28 is best for walking
-      time = clock.get_ticks()/28
-
-      #print("this is time: " + str(time) + " starttime : " + str(self.starttime)) 
-      if self.shooting ==True: 
-
-                  
-            if xdiff >0 and ydiff > 0:
-               if angle < 10:
-                  print(" 04")
-                  self.direction = "0"
-               else:
-                  self.direction = "270"
-
-               
-            if xdiff <0 and ydiff <0:
-                if angle > 80:
-                  self.direction = "180"
-                else:
-                  print(" 03")
-                  self.direction = "90"
-            if xdiff >0 and ydiff <0:
-               if angle > 5:
-                  self.direction = "270"
-               else:
-                  print(" 01")
-                  self.direction = "0"
-            if xdiff <0 and ydiff >0:
-               if angle > 80:
-                  self.direction = "0"
-               else:
-                  print(" 02")
-                  self.direction = "90"
-
+      if self.shooting:
+            sortedenemy.sort()
             
-            direction = self.direction
-            
-            #rint("This is self direction ", self.direction, "this is angle " + str(angle))
+
+
+            target = distancedict[sortedenemy[0]]
+
+            if target.getCollisionRect().colliderect(self.rangeup.getCollisionRect()):
+               direction = "0"
+
+            elif target.getCollisionRect().colliderect(self.rangedown.getCollisionRect()):
+
+               direction = "180"
+
+            elif target.getCollisionRect().colliderect(self.rangeleft.getCollisionRect()):
+               direction = "270"
+
+            elif target.getCollisionRect().colliderect(self.rangeright.getCollisionRect()):
+               direction = "90"
+            else:
+               direction = "0"
+
+
+
+         
+
+
+
+         
+               #rint("This is self direction ", self.direction, "this is angle " + str(angle))
 
             self.shootimage = pygame.image.load(os.path.join("images\Rifleman\Shooting", direction+"shooting"+str(max(1,round(self.shootcursor/frame)))+".png")).convert()
-              #Blit it here instead of the draw method for better clarity
+               #Blit it here instead of the draw method for better clarity
             self.shootimage.set_colorkey(self.image.get_at((0,0)))
             if (time -self.starttime > 0.7):
-               # Update time every 2.1 ish seconds
+                  # Update time every 2.1 ish seconds
+                  
+                  self.changetime(time)
                
-               self.changetime(time)
-            
-                       
-               if self.shootcursor >14*frame:
-                  # If the animation frame is greater than seven (only seven walking animation frames) then reset the cursor
-                  self.shootcursor = 1
-               # change animation frame as per the animation cursor
-              
-                 
-                  
-
-               if self.shootcursor <=14*frame:
-                  #Move the Animatioon framecursor as long as it is below the frame amount
-                  self.shootcursor +=1
-               if self.shootcursor >14*frame:
-                  self.shootcursor = 1
-
-               if self.shootcursor == 10*frame:
-                  bullet = Projectile(self.position.x-10,self.position.y+10,400,int(self.direction))
-                  projectilelst.append(bullet)
-                  self.shootsound.play()
-               if self.shootcursor == 2*frame:
-                  
-                  self.cocksound.play()
-
+                        
+            if self.shootcursor >14*frame:
+                     # If the animation frame is greater than seven (only seven walking animation frames) then reset the cursor
+                     self.shootcursor = 1
+                  # change animation frame as per the animation cursor
                
-               # if self.cursor in(5*frame,frame):
                   
-               #    self.cursor += (round(frame/1.5))
-              
+                     
+
+            if self.shootcursor <=14*frame:
+                     #Move the Animatioon framecursor as long as it is below the frame amount
+                     self.shootcursor +=1
+            if self.shootcursor >14*frame:
+                     self.shootcursor = 1
+
+            if self.shootcursor == 10*frame:
+                     bullet = Projectile(self.position.x-10,self.position.y+10,400,int(direction),enemylst)
+                     projectilelst.append(bullet)
+                     self.shootsound.play()
+            if self.shootcursor == 2*frame:
+                     
+                     self.cocksound.play()
+
                   
+                  # if self.cursor in(5*frame,frame):
+                     
+                  #    self.cursor += (round(frame/1.5))
+               
+                     
           
-      else:
-         #If its not in a going state change the image to the defualt reserve image
-         
-         self.image = self.imageres
+       
 
     def walk(self,clock,framerate = 7):
       ''''

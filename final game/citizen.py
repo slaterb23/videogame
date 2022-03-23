@@ -4,7 +4,7 @@ Nobel Manayhe
 Implements an automatcially moving orb that is followed by a camera
 
 '''
-from pickle import NONE
+
 import pygame
 import os
 import math

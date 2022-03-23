@@ -1,5 +1,4 @@
 
-import torch
 from doctest import ELLIPSIS_MARKER
 import pygame
 import os
@@ -15,13 +14,14 @@ from character import Character
 class cavalry(Character):
     def __init__(self,color,xposition,yposition):
 
-        path = os.path.join('Images\Cavalry'+"\C"+color,"0walking1.png")
+
+        path = os.path.join('Images\Cavalry'+"\C"+color,"180walking1.png")
         self.collisionim =os.path.join("images\Rifleman","riflecollisionrect.png")
         self.collideim = panel(self.collisionim,self.collisionim,0,0)
         super().__init__(path,xposition,yposition)
         self.range= 30
         self.maxspeed = 60
-        self.direction = "0"
+        self.direction = "270"
         self.color= color
         self.shooting = False
         self.shootingcursor = 1
@@ -29,6 +29,29 @@ class cavalry(Character):
         self.starttime =1
         self.shootingimage = self.image
         self.shootcursor = 1
+        self.attack = 40
+
+        self.rangeimage = os.path.join("images\Cavalry","up.png")
+        self.verimage= os.path.join("images\Cavalry","side.png")
+        self.walkimage = self.image
+
+       ####Sensing the direction
+      
+
+        self.rangeup = panel(self.verimage,self.verimage,0,0)
+        self.rangedown = panel(self.verimage,self.verimage,0,0)
+        self.rangeright = panel(self.rangeimage,self.rangeimage,0,0)
+        self.rangeleft = panel(self.rangeimage,self.rangeimage,0,0)
+
+        self.rangelst = [self.rangeup,self.rangedown,self.rangeright,self.rangeleft]
+
+
+    def updatecollide(self):
+      cpointy = self.position.y +self.centery*self.getHeight()+19
+      cpointx = self.position.x +self.centerx*self.getWidth()-8
+
+      self.collideim.position.x = cpointx 
+      self.collideim.position.y = cpointy - self.veradjust
 
     def draw(self,surface):
 
@@ -36,11 +59,19 @@ class cavalry(Character):
         # pygame.draw.rect(surface,(0,0,255),self.getCollisionRect())  
         # for item in self.sensorls:
         #   item.draw(surface)
+
+
+        
+        self.updatecollide()
+        self.updaterange()
+      #   for item in self.rangelst:
+      #       item.draw(surface)
         if [self.dead,self.shooting,self.going] == [False,False,False]:
       #its in a nothing state here, doing nothing
          
          surface.blit(self.image, list(self.position))
          self.image.set_colorkey(self.image.get_at((0,0)))
+
          
         if self.selected == True:
 
@@ -79,6 +110,8 @@ class cavalry(Character):
 
       #Weird time, but trial and error shows 28 is best for walking
       time = clock.get_ticks()/28
+
+
 
       #print("this is time: " + str(time) + " starttime : " + str(self.starttime)) 
       if self.going ==True: 
@@ -143,7 +176,15 @@ class cavalry(Character):
       Walks the citizen as per the requested frame rate      
       '''
       
+      time = clock.get_ticks()/28
+
       frame =framerate
+
+      distancedict = {}
+
+      sortedenemy = []
+      
+      self.shootimage = self.image
 
       self.shooting = False
       for enemy in enemylst:
@@ -151,55 +192,43 @@ class cavalry(Character):
          ydiff = self.getPosition().y -enemy.getPosition().y
          xdiff= min(xdiff, 0.0001)
          angle = (abs(math.atan(ydiff/xdiff)))*180/(math.pi)
-         distance = Distance(list(enemy.getPosition()),list(self.getPosition()))
-         #rint(" Distance is " + str(Distance(list(enemy.getPosition()),list(self.getPosition()))))
-
-         if distance < self.range: 
-            self.shooting =True
-
+         
       
+         for rect in self.rangelst:
+            if enemy.getCollisionRect().colliderect(rect.getCollisionRect()):
+               distance = Distance(list(enemy.getPosition()),list(self.getPosition()))
+               self.shooting = True
+               
 
-
+               distancedict[distance]=enemy
+               sortedenemy.append(distance)
+        
+         
       if self.going ==True:
          self.shooting =False
          self.walk(pygame.time)
-      #Weird time, but trial and error shows 28 is best for walking
-      time = clock.get_ticks()/28
-
-      #print("this is time: " + str(time) + " starttime : " + str(self.starttime)) 
-      if self.shooting ==True: 
-
-                  
-            if xdiff >0 and ydiff > 0:
-               if angle < 10:
-                  print(" 04")
-                  self.direction = "0"
-               else:
-                  self.direction = "270"
-
-               
-            if xdiff <0 and ydiff <0:
-                if angle > 80:
-                  self.direction = "180"
-                else:
-                  print(" 03")
-                  self.direction = "90"
-            if xdiff >0 and ydiff <0:
-               if angle > 5:
-                  self.direction = "270"
-               else:
-                  print(" 01")
-                  self.direction = "0"
-            if xdiff <0 and ydiff >0:
-               if angle > 80:
-                  self.direction = "0"
-               else:
-                  print(" 02")
-                  self.direction = "90"
-
+      if self.shooting:
+            sortedenemy.sort()
             
-            direction = self.direction
-            
+
+
+            target = distancedict[sortedenemy[0]]
+
+            if target.getCollisionRect().colliderect(self.rangeup.getCollisionRect()):
+               direction = "0"
+
+            elif target.getCollisionRect().colliderect(self.rangedown.getCollisionRect()):
+
+               direction = "180"
+
+            elif target.getCollisionRect().colliderect(self.rangeleft.getCollisionRect()):
+               direction = "270"
+
+            elif target.getCollisionRect().colliderect(self.rangeright.getCollisionRect()):
+               direction = "90"
+            else:
+               direction = "0"
+     
             #rint("This is self direction ", self.direction, "this is angle " + str(angle))
 
             self.shootimage = pygame.image.load(os.path.join("images\Cavalry" + "\C"+self.color,str(direction) + "shooting" + str(max(1,round(self.shootcursor/frame)))+".png")).convert()
@@ -211,7 +240,7 @@ class cavalry(Character):
                self.changetime(time)
             
                        
-               if self.shootcursor >14*frame:
+               if self.shootcursor >4*frame:
                   # If the animation frame is greater than seven (only seven walking animation frames) then reset the cursor
                   self.shootcursor = 1
                # change animation frame as per the animation cursor
@@ -219,19 +248,14 @@ class cavalry(Character):
                  
                   
 
-               if self.shootcursor <=14*frame:
+               if self.shootcursor <=4*frame:
                   #Move the Animatioon framecursor as long as it is below the frame amount
                   self.shootcursor +=1
-               if self.shootcursor >14*frame:
-                  self.shootcursor = 1
-
-               if self.shootcursor == 10*frame:
-                  bullet = Projectile(self.position.x-10,self.position.y+10,400,int(self.direction))
-                  projectilelst.append(bullet)
-                  self.shootsound.play()
+           
+                  
                if self.shootcursor == 2*frame:
                   
-                  self.cocksound.play()
+                  target.recvDamage(self.attack)
 
                
                # if self.cursor in(5*frame,frame):
@@ -244,3 +268,24 @@ class cavalry(Character):
          #If its not in a going state change the image to the defualt reserve image
          
          self.image = self.imageres
+
+    def updaterange(self):
+      cpointy = self.position.y +self.centery*self.getHeight()  
+      cpointx = self.position.x +self.centerx*self.getWidth() 
+
+      self.rangeup.position.x = cpointx-30
+
+      self.rangeup.position.y = cpointy-39
+
+      self.rangedown.position.x = cpointx-30
+      self.rangedown.position.y = cpointy+50
+
+
+      self.rangeleft.position.x = cpointx-30
+      
+
+      self.rangeleft.position.y = cpointy
+
+
+      self.rangeright.position.x = cpointx+15
+      self.rangeright.position.y = cpointy

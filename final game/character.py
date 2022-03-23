@@ -1,6 +1,5 @@
 
-from turtle import speed
-import torch
+
 from doctest import ELLIPSIS_MARKER
 import pygame
 import os
@@ -34,6 +33,7 @@ class Character(drawable):
         self.selectedim = pygame.image.load(os.path.join("images","selectedpointer.png")).convert()
         self.adjustimage =  os.path.join("images","mouse.png")
         self.rangeimage = os.path.join("images\Rifleman","riflerangerect.png")
+        self.verimage= os.path.join("images\Rifleman","uprange.png")
         
         self.rangedownim = self.rangeimage
         self.rangerightim = self.rangeimage
@@ -53,8 +53,8 @@ class Character(drawable):
         self.left= panel(self.adjustimage,self.adjustimage,0,0)
         self.right = panel(self.adjustimage,self.adjustimage,0,0)
 
-        self.rangeup = panel(self.rangeimage,self.rangeimage,0,0)
-        self.rangedown = panel(self.rangeimage,self.rangeimage,0,0)
+        self.rangeup = panel(self.verimage,self.verimage,0,0)
+        self.rangedown = panel(self.verimage,self.verimage,0,0)
         self.rangeright = panel(self.rangeimage,self.rangeimage,0,0)
         self.rangeleft = panel(self.rangeimage,self.rangeimage,0,0)
 
@@ -62,9 +62,7 @@ class Character(drawable):
         
        
 
-        self.rangeup.image = pygame.transform.rotate(self.rangeright.image,270)
-        self.rangeleft.image = pygame.transform.rotate(self.rangeup.image,180)
-        self.rangedown.image = pygame.transform.rotate(self.rangeup.image,90)
+       
 
         self.sensorls = [self.up,self.down,self.left,self.right]
         self.rangelst = [self.rangeup,self.rangedown,self.rangeright,self.rangeleft]
@@ -102,15 +100,11 @@ class Character(drawable):
       self.starttime = time
     
     def updateadjust(self):
-      cpointy = self.position.y +self.centery*self.getHeight()  
-      cpointx = self.position.x +self.centerx*self.getWidth() 
+      cpointy = self.position.y +self.centery*self.getHeight()+19
+      cpointx = self.position.x +self.centerx*self.getWidth()-8
 
-      self.rangeup.position.x = cpointx
-      self.rangeup.position.y = cpointy
+      
 
-      for rangerect in self.rangelst:
-         rangerect.position.x = cpointx
-         rangerect.position.y = cpointy
 
       self.up.position.x = cpointx 
       self.up.position.y = cpointy - self.veradjust
@@ -436,6 +430,7 @@ class Character(drawable):
        #rint("selfstate is " + self.pathstate)
        if self.pathstate != "":
           return speeddict[self.lastspeed]
+
        if xdiff >0 and ydiff >0 and self.pathstate =="":
           priority = ["up","left","down","right"]
           index = 0
@@ -457,7 +452,7 @@ class Character(drawable):
        elif xdiff <0 and ydiff <0 and self.pathstate =="":
           priority = ["down","right","left","up"]
           index = 0
-          while True:
+          while True and index < len(priority):
              if priority[index] in paths:
                 for string in paths:
                    pats += (" ,"+string)
@@ -471,7 +466,7 @@ class Character(drawable):
        elif xdiff <0 and ydiff >0 and self.pathstate =="":
           priority = ["up","right","down","left"]
           index = 0
-          while True:
+          while True and index < len(priority):
              if priority[index] in paths:
                 for string in paths:
                    pats += (" ,"+string)
@@ -485,7 +480,7 @@ class Character(drawable):
        elif xdiff >0 and ydiff <0 and self.pathstate =="":
           priority = ["down","left","up","right"]
           index = 0
-          while True:
+          while True and index < len(priority):
              if priority[index] in paths:
                 pats = ' '
                 for string in paths:
