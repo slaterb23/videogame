@@ -19,7 +19,7 @@ from rifleman import Rifleman
 from Cavalry import cavalry
 from dummy import Dummy
 
-SCREEN_SIZE = (1400,900)
+SCREEN_SIZE = (1200,950)
 
 
 def main():
@@ -43,8 +43,10 @@ def main():
    collide = pygame.image.load(os.path.join("images", "citizencollisionrect.png")).convert()
    leftclickpath =os.path.join("images\Tutorial", "leftclick.png")
    rightclickpath = os.path.join("images\Tutorial", "rightclick.png")
+   notenoughim = os.path.join("images","Notenough.png")
    leftclick = panel(leftclickpath,leftclickpath,800,400)
    rightclick = panel(rightclickpath,rightclickpath,300,400)
+   notenough = panel(notenoughim,notenoughim,700,200)
    mouse1 =os.path.join("images", "mouse.png")
    goldpath = os.path.join("images", "gold.png")
    treepath = os.path.join("images","tree.png")
@@ -100,8 +102,11 @@ def main():
    allymilitary= []
    selectedcitizenlst = []
    projectilelst = []
-   leftclicklst = []
-   rightclicklst =[]
+   leftclicklst = [(480,300),(6,622)]
+   rightclicklst =[(-400,-400)]
+
+   leftindex = 0
+   rightindex = 0
 
    enemylst = []
    for enemy in enemylst:
@@ -134,7 +139,7 @@ def main():
    #barrack = building(barrackselectedpath,barrackpathlst[0],800,390)
    board = graphmap(SCREEN_SIZE)
    register = resourceregister()
-   register.addGold(500)
+   register.addGold(50)
    register.addWood(50)
    blitorder = queue()
    
@@ -148,35 +153,65 @@ def main():
    Warnfont =  pygame.font.SysFont("Arial",29)
    warningtxt = Warnfont.render( "WARNING ENEMY APPROACHING",False,(255,0,0) )
    
-
+   finished = False
+   displaynotenough =False
    # main loop
+
+   played = False
    while RUNNING:
+
+        
         
         time = int(pygame.time.get_ticks()/1000)
 
         
+        if finished:
+           leftclick.position = (-400,-400)
         
+        else:
+         left = min(leftindex,len(leftclicklst)-1)
+         right = min(rightindex,len(rightclicklst)-1)
+         leftclick.position  = leftclicklst[left]
+         rightclick.position = rightclicklst[right]
+
+        if rightindex ==1:
+           if abs(righttime-time) > 3:
+              rightclicklst.append((-400,-400))
+              rightindex +=1
+        if rightindex ==2:
+            if abs(righttime-time) > 19:
+               leftclicklst.append((200,200))
+               leftindex+=1
+
         
         screen.fill((255,255,255))
+
+
         if abs(timer -time) > 3 and timer != 0:
            warn = False
 
         #rint(str(time) + " THis is the timer " + str(timer))
-        if (time)%25 ==0 and time != 0:
+        if (time)%45 ==0 and time != 0:
            timer = time
            warn = True
-           siren.play()
+           if played == False:
+
+            siren.play()
+            played = True
+
+         
 
            
            
            
            
-        if (time)%30 ==0 and time != 0 and time != oldtime:
+        if (time)%50 ==0 and time != 0 and time != oldtime:
            oldtime = time
            randposx = random.randint(50,80)
            randposy = random.randint(50,80)
 
-           numenemies = random.randint(1,7)
+           numenemies = random.randint(1,10)
+           played = False
            
            
 
@@ -212,12 +247,18 @@ def main():
         #screen.blit(collide,list(man.position))
         cursor.draw(screen)
         leftpanel.draw(screen)
+        leftclick.draw(screen)
+        rightclick.draw(screen)
         rightpanel.draw(screen)
         register.draw(screen)
 
+        if displaynotenough:
+           if abs(time-notenoughtime)< 5:
+            notenough.draw(screen)
 
 
-        HPfont =  pygame.font.SysFont("Arial",40)
+
+        HPfont =  pygame.font.SysFont("Arial",32)
         homehp = HPfont.render( (" Castle Hitpoints :" + str(home.HP)),False,(0,0,0) )
         
         screen.blit(homehp,(470,800))
@@ -239,6 +280,8 @@ def main():
         if len(buildinglst) >0:
            for buildings in buildinglst:
               if buildings.isselected():
+                 leftclicklst.append((6,622))
+                 leftindex+=1
                  isbarrackselected = True
                
               buildings.changecolliderect((0.5,0.5))
@@ -328,7 +371,7 @@ def main():
               if event.type == pygame.KEYDOWN:
                   #tutorial = pygame.image.load(os.path.join("images", "axe1.png")).convert()
                   #screen.blit(tutorial,[500,500])
-                  pass
+                  print("============ This is Pos" + str(pygame.mouse.get_pos()))
 
 
                   
@@ -372,12 +415,19 @@ def main():
                         if home.isselected():
 
                            newcitizen = home.spawn("citizen",register)
+
+                           
                            if newcitizen in (True,False):
-                              screen.blit(Noresourcetxt,(800,60))
+                              displaynotenough = True
+                              notenoughtime = time
+                              #screen.blit(Noresourcetxt,(800,60))
                            else:
                            
                               randomx = random.randint(-200,-40)
                               randomy= random.randint(-200,-40)
+
+                              leftclicklst.append(tuple((home.getPosition().x+randomx-leftclick.getWidth()+80,home.getPosition().x+randomy-leftclick.getHeight())))
+                              leftindex +=1
                               newcitizen.beginmoving(list((home.getPosition().x+randomx,home.getPosition().x+randomy)))
                               citizenlst.append(newcitizen)
                               #rint("This is gold before: "+ str(register.gold))
@@ -397,8 +447,14 @@ def main():
                               cav = cavalry("Red",300,400)
 
                               riflesoldier = buildings.spawn("rifleman",register)
+                              finished = True
+                              
+                              
                               #rint("gold " +str(register.gold))
                               if riflesoldier in (True,False):
+
+                                 displaynotenough = True
+                                 notenoughtime = time
                                  pass#rint("++++++++++NO++++++++++++++++++")
                               else:
                               
@@ -409,6 +465,8 @@ def main():
                                  riflesoldier.beginmoving([randomx+buildings.getPosition().x,randomy + buildings.getPosition().y])
                                  allymilitary.append(riflesoldier)
                                  allymilitary.append(cav)
+
+                                 cav.beginmoving([randomx+buildings.getPosition().x,randomy + buildings.getPosition().y+300])
                            
                         
                            
@@ -421,6 +479,7 @@ def main():
                      if cursor.getCollisionRect().colliderect(home.getCollisionRect()):
                         if cursor.occupied ==False:
                            home.select()
+                           leftindex +=1
                            cursor.occupied = True
                            if len(selectedcitizen) != 0:
                                  selectedcitizen.remove(selectedcitizen[len(selectedcitizen)-1])
@@ -429,18 +488,30 @@ def main():
                                  #mouse is selecting the human
                                  if cursor.occupied == False:
                                     man.select()
+                                    leftclicklst.append((6,622))
+                                    leftindex +=1
+
                                     selectedcitizen.append(man)
+                                    
                                     cursor.occupied = True
                      
                         if man.isselected():
                            selectedcitizenlst =[]
                            selectedcitizenlst.append(man)
                            if cursor.getCollisionRect().colliderect(barrackbutton.getCollisionRect()):
+
+                                 leftclicklst.append((-400,-400))
+                                 leftindex +=1
                                  barracks = building(barrackselected,barrackdir,barrackpath,barrackdir,300,400,0)
                                  barracks.changecolliderect(barrackcollide)
-                                 
+                                 rightclicklst.append((200,290))
+
+                                 righttime = time
+
+                                 rightindex +=1
                                  register.addWood(-1*costregister["barracks"][0])
                                  unbuiltlst.append(barracks)
+                                 
 
                                  cursor.occupied = True
 
@@ -534,22 +605,9 @@ def main():
               
                
 
-      # Update time and position
         gameClock.tick(60)
         ticks = gameClock.get_time() / 1000
-##      Orb.position += Orb.velocity * ticks
 
-      # calculate offset
-##      offset = Vector2(max(0,
-##                           min(Orb.position.x + (Orb.image.get_width() // 2) - \
-##                               (SCREEN_SIZE[0] // 2),
-##                               WORLD_SIZE[0] - SCREEN_SIZE[0])),
-##                       max(0,
-##                           min(Orb.position.y + (Orb.image.get_height()// 2) - \
-##                               (SCREEN_SIZE[1] // 2),
-##                               WORLD_SIZE[1] - SCREEN_SIZE[1])))
-
-      
       
       
       
