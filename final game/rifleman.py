@@ -82,17 +82,17 @@ class Rifleman(Character):
         self.updatecollide()
         self.updaterange()
         #self.rangeup.draw(surface)
-        #pygame.draw.rect(surface,(0,0,255),self.getCollisionRect())
+        pygame.draw.rect(surface,(0,0,255),self.getCollisionRect())
 
           
 
-      #   for item in self.rangelst:
-      #       item.draw(surface)
+        #for item in self.rangelst:
+             #item.draw(surface)
            #print("this is x, " , str(item.position.x))
         #"Length of range " + str(len(self.rangelst)))
 
-      #   for item in self.sensorls:
-      #     item.draw(surface)
+        for item in self.sensorls:
+           item.draw(surface)
         if [self.dead,self.shooting,self.going] == [False,False,False]:
       #its in a nothing state here, doing nothing
          
@@ -253,6 +253,28 @@ class Rifleman(Character):
                
                      
           
+
+    def updateadjust(self):
+      cpointy = self.position.y +self.centery*self.getHeight()+19
+      cpointx = self.position.x +self.centerx*self.getWidth()-2
+
+      
+
+
+      self.up.position.x = cpointx 
+      self.up.position.y = cpointy - self.veradjust
+
+      self.down.position.x = cpointx 
+      self.down.position.y = cpointy + self.veradjust
+
+      self.left.position.x = cpointx -self.adjust
+      self.left.position.y = cpointy 
+
+      self.right.position.x = cpointx + self.adjust
+      self.right.position.y = cpointy 
+
+      self.old = self.position
+
        
 
     def walk(self,clock,framerate = 7):

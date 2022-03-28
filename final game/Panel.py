@@ -26,7 +26,7 @@ class panel(object):
       self.dead = False
       
       if secondpath is not None:
-          print("setting second path", secondpath)
+         
           self.secondimage = pygame.image.load(secondpath).convert()
       else:
           self.secondimage = None

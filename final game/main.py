@@ -57,11 +57,15 @@ def main():
    riflemanbuttonpath = os.path.join("images\Buttons", "riflemanbutton.png")
 
 
+   
+
+
 
    citizenpath = os.path.join("images", "citizen3.png")
    alliedriflepath = os.path.join("images\Rifleman\Walking","180walking1.png")
-   
-   dummypath = os.path.join("images\Enemies\dummy", "dummy.png")
+   dummypath = os.path.join("images\pikeman", "0walking1.png")
+   #dummypath = os.path.join("images\Enemies\dummy", "dummy.png")
+   #dummy2path = os.path.join(
 
    homepath =  "testbuilding"
    homepathdir = "images"
@@ -139,7 +143,7 @@ def main():
    #barrack = building(barrackselectedpath,barrackpathlst[0],800,390)
    board = graphmap(SCREEN_SIZE)
    register = resourceregister()
-   register.addGold(50)
+   register.addGold(130)
    register.addWood(50)
    blitorder = queue()
    
@@ -153,7 +157,7 @@ def main():
    Warnfont =  pygame.font.SysFont("Arial",29)
    warningtxt = Warnfont.render( "WARNING ENEMY APPROACHING",False,(255,0,0) )
    
-   finished = False
+   finished = True
    displaynotenough =False
    # main loop
 
@@ -167,7 +171,7 @@ def main():
         
         if finished:
            leftclick.position = (-400,-400)
-        
+           rightclick.position = (-400,-400)
         else:
          left = min(leftindex,len(leftclicklst)-1)
          right = min(rightindex,len(rightclicklst)-1)
@@ -210,7 +214,7 @@ def main():
            randposx = random.randint(50,80)
            randposy = random.randint(50,80)
 
-           numenemies = random.randint(1,10)
+           numenemies = random.randint(1,3)
            played = False
            
            

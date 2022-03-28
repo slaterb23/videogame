@@ -368,6 +368,7 @@ class Character(drawable):
 
        pats =''
        max = self.fixspeed
+
        speeddict = {"right":[max,0],"up":[0,-max],"down":[0,max],"left":[-max,0]}
 
        if self.pathstate =="2":
@@ -375,18 +376,18 @@ class Character(drawable):
                  
           if xdiff < 0 and "right" in paths:
              self.pathstate = ""
-             #rint("right")
+             print("right")
              self.lastspeed = "right"
              return speeddict["right"]
              
           if xdiff > 0 and "left" in paths:
              self.pathstate = ""
-             #rint("left")
+             print("left")
              self.lastspeed = "left"
              return speeddict["left"]
              
           if ydiff <self.ysensormin and "down" in paths:
-             #rint("down")
+             print("down")
              self.lastspeed = "down"
              return speeddict["down"]
 
@@ -395,24 +396,29 @@ class Character(drawable):
          #     return speeddict["up"]
        
        if self.pathstate == "2":
+          print(self.lastspeed + "2")
           return speeddict[self.lastspeed]
        elif self.pathstate =="1":
           if ydiff < 0 and "down" in paths:
              self.pathstate = ""
              self.lastspeed = "down"
+             print("down2")
              return speeddict["down"]
              
           if ydiff > 0 and "up" in paths:
              self.pathstate = ""
              self.lastspeed = "up"
+             print("up2")
              return speeddict["up"]
              
           if xdiff <=0 and "left" in paths:
              self.lastspeed = "left"
+             print("left2")
              return speeddict["left"]
 
           elif xdiff >=0 and "right" in paths:
              self.lastspeed = "right"
+             print("right2")
              return speeddict["right"]
       
 
@@ -427,7 +433,7 @@ class Character(drawable):
           self.pathstate = "2"
       
           
-       #rint("selfstate is " + self.pathstate)
+       print("selfstate is " + self.pathstate)
        if self.pathstate != "":
           return speeddict[self.lastspeed]
 
@@ -439,10 +445,13 @@ class Character(drawable):
 
                 for string in paths:
                    pats += (" ,"+string)
-                #rint(" This is speed1 "  + priority[index] + " " + pats)
+                print(" This is speed1 "  + priority[index] + " " + pats)
                 
-                self.lastspeed = priority[index]
-                return speeddict[priority[index]]
+                if Character.isopposite(self.lastspeed,priority[index]):
+                   return speeddict[self.lastspeed]
+                else:
+                  self.lastspeed = priority[index]
+                  return speeddict[priority[index]]
                 
              index += 1
       
@@ -456,11 +465,12 @@ class Character(drawable):
              if priority[index] in paths:
                 for string in paths:
                    pats += (" ,"+string)
-                #rint(" This is speed2 "  + priority[index] + " " + pats)
-               
-                self.lastspeed = priority[index]
-                return speeddict[priority[index]]
-                
+                print(" This is speed2 "  + priority[index] + " " + pats)
+                if Character.isopposite(self.lastspeed,priority[index]):
+                   return speeddict[self.lastspeed]
+                else:
+                  self.lastspeed = priority[index]
+                  return speeddict[priority[index]]
              index += 1
       
        elif xdiff <0 and ydiff >0 and self.pathstate =="":
@@ -470,29 +480,35 @@ class Character(drawable):
              if priority[index] in paths:
                 for string in paths:
                    pats += (" ,"+string)
-                #rint(" This is speed3 "  + priority[index] + " " + pats)
-                
-                self.lastspeed = priority[index]
-                return speeddict[priority[index]]
-                
+                print(" This is speed3 "  + priority[index] + " " + pats)
+                if Character.isopposite(self.lastspeed,priority[index]):
+                   return speeddict[self.lastspeed]
+                else:
+                  self.lastspeed = priority[index]
+                  return speeddict[priority[index]]
              index += 1
 
        elif xdiff >0 and ydiff <0 and self.pathstate =="":
+          
           priority = ["down","left","up","right"]
+          if self.lastspeed == "up":
+             priority = ["up", "down","left","up","right"]
           index = 0
           while True and index < len(priority):
              if priority[index] in paths:
                 pats = ' '
                 for string in paths:
                    pats += (" ,"+string)
-                #rint(" This is speed4 "  + priority[index] + " " + pats)
-                self.lastspeed = priority[index]
-                return speeddict[priority[index]]
-                
+                print(" This is speed4 "  + priority[index] + " " + pats)
+                if Character.isopposite(self.lastspeed,priority[index]):
+                   return speeddict[self.lastspeed]
+                else:
+                  self.lastspeed = priority[index]
+                  return speeddict[priority[index]]
              index += 1
        
          
-       return self.lastspeed
+       return speeddict[self.lastspeed]
       
 
 
@@ -508,6 +524,14 @@ class Character(drawable):
 
 
 
+    def isopposite(speed1,speed2):
+      if speed1 in ["left","right"] and speed2 in ["left","right"]:
+         return speed1 !=speed2
+      if speed1 in ["up","down"] and speed2 in ["up","down"]:
+         return speed1 != speed2
+      else:
+         return False
+      
 
        
 
@@ -602,6 +626,14 @@ class Character(drawable):
                self.velocity.y = 0
                
                self.arrived = True
+
+
+
+ls = [("left","right")]
+for item in ls: 
+   print(Character.isopposite(item[0],item[1]))
+
+
                
                                        
            
