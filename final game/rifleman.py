@@ -35,6 +35,7 @@ class Rifleman(Character):
        self.shootimage = self.image
        self.shooting = False
        self.shootcursor = 1
+       self.noshoottime = 0
        self.cocksound = pygame.mixer.Sound(os.path.join("sound","cocking.wav"))
        self.shootsound = pygame.mixer.Sound(os.path.join("sound","rifleshooting.wav"))
        self.direction = "0"
@@ -61,8 +62,18 @@ class Rifleman(Character):
 
 
 
-
-       
+    def beginmoving(self,end,time):
+      '''
+      Initializes the go method with the appropriate end variable
+      '''
+      self.noshoottime = time
+      self.going = True
+      self.selected = False
+      self.shooting = False
+      self.start = list(self.position)
+      start = self.start
+      self.end = end
+      
     def getCollisionRect(self):
        oldrect = self.collideim.getCollisionRect()
        
@@ -84,7 +95,7 @@ class Rifleman(Character):
         self.updatecollide()
         self.updaterange()
         #self.rangeup.draw(surface)
-        #pygame.draw.rect(surface,(0,0,255),self.getCollisionRect())
+        pygame.draw.rect(surface,(0,0,255),self.getCollisionRect())
 
           
 
@@ -93,8 +104,8 @@ class Rifleman(Character):
            #print("this is x, " , str(item.position.x))
         #"Length of range " + str(len(self.rangelst)))
 
-        for item in self.sensorls:
-           item.draw(surface)
+        #for item in self.sensorls:
+           #item.draw(surface)
         if [self.dead,self.shooting,self.going] == [False,False,False]:
       #its in a nothing state here, doing nothing
          
@@ -151,11 +162,18 @@ class Rifleman(Character):
     def goshoot(self,target =None):
        self.target = target
        self.shooting = True
-    def shoot(self,clock,projectilelst,enemylst,framerate = 5):
+       self.going = False
+    def shoot(self,clock,projectilelst,enemylst,timer,framerate = 5):
       ''''
       Walks the citizen as per the requested frame rate      
       '''
+
+
+
       time = clock.get_ticks()/28
+
+      #rint("this is enemies " + str(enemylst))
+
 
       frame =framerate
 
@@ -176,17 +194,29 @@ class Rifleman(Character):
          for rect in self.rangelst:
             if enemy.getCollisionRect().colliderect(rect.getCollisionRect()):
                distance = Distance(list(enemy.getPosition()),list(self.getPosition()))
-               self.shooting = True
-               print("this is enemies " + str(sortedenemy))
+               # if self.going ==True:
+               #    # wait five seconds if it is moving somewhere
+               #    print("timer " + str(timer) + " noshoot "  + str(self.noshoottime))
+               #    if (timer-self.noshoottime)> 5:
+                  
+               #       self.goshoot()
+               # else:
+               self.goshoot()
+              
+               
                #index the distances of the enemyies, then pick the shortest
                distancedict[distance]=enemy
                sortedenemy.append(distance)
+               #rint("sortled " + str(sortedenemy))
         
          
-      if self.going ==True:
-         self.shooting =False
-         self.walk(pygame.time)
+      # if self.going ==True:
+      #    self.shooting =False
+      #    self.walk(pygame.time)
+      if not self.shooting:
+         self.going =True
       if self.shooting:
+            
             sortedenemy.sort()
             
 

@@ -115,9 +115,9 @@ def main():
    rightindex = 0
 
    enemylst = []
-   for enemy in enemylst:
-      homepos = list(home.getPosition())
-      enemy.beginmoving((homepos[0] + 50, homepos[1]+50))
+   
+   homepos = list(home.getPosition())
+
    #Tick the clock
    gameClock = pygame.time.Clock()
    homepos = list(home.getPosition())
@@ -228,7 +228,7 @@ def main():
             
               riflesold = Rifleman(riflepath,randposx,randposy)
               riflesold.quickshootfix()
-              riflesold.beginmoving((homepos[0] + 50, homepos[1]+50))
+              riflesold.beginmoving((homepos[0] + 50, homepos[1]+50),time)
 
               enemylst.append(riflesold)
           
@@ -276,9 +276,12 @@ def main():
            RUNNING = False
         if len(enemylst) > 0:
          for enemy in enemylst:
-            enemy.draw(screen)
-            enemy.shoot(pygame.time,projectilelst,allymilitary)
+            
+            enemy.shoot(pygame.time,projectilelst,allymilitary,time)
             enemy.go(gameClock,buildinglst)
+            enemy.walk(pygame.time)
+            
+            enemy.draw(screen)
             
             
             if enemy.isDead():
@@ -318,11 +321,13 @@ def main():
         if len(allymilitary)>=1:
            #rint(citizenlst)
            for soldier in allymilitary:
-              soldier.shoot(pygame.time,projectilelst,enemylst)
+              soldier.shoot(pygame.time,projectilelst,enemylst,time)
               soldier.go(gameClock,buildinglst)
               soldier.walk(pygame.time)
               
               soldier.draw(screen)
+              if soldier.dead == True:
+                 allymilitary.remove(soldier)
               
         for bullet in projectilelst:
            bullet.draw(screen)
@@ -473,11 +478,11 @@ def main():
                                  register.addGold(-1*costregister["rifleman"][1])
                                  randomx = random.randint(-80,-40)
                                  randomy= random.randint(-100,-40)
-                                 riflesoldier.beginmoving([randomx+buildings.getPosition().x,randomy + buildings.getPosition().y])
+                                 riflesoldier.beginmoving([randomx+buildings.getPosition().x,randomy + buildings.getPosition().y],time)
                                  allymilitary.append(riflesoldier)
                                  allymilitary.append(cav)
 
-                                 cav.beginmoving([randomx+buildings.getPosition().x,randomy + buildings.getPosition().y+300])
+                                 cav.beginmoving([randomx+buildings.getPosition().x,randomy + buildings.getPosition().y+300],time)
                            
                         
                            
@@ -553,7 +558,7 @@ def main():
                            cursor.occupied = True
 
                         #IF not in a shooting state:
-                           soldier.beginmoving(list(pygame.mouse.get_pos()))
+                           soldier.beginmoving(list(pygame.mouse.get_pos()),time)
                         else:
                            soldier.unselect()
                            cursor.occupied = False

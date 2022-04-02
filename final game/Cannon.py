@@ -43,10 +43,20 @@ class cannon(Character):
         self.rangelst = [self.rangeup,self.rangedown,self.rangeright,self.rangeleft]
 
 
-
+    def beginmoving(self,end,time):
+      '''
+      Initializes the go method with the appropriate end variable
+      '''
+      self.noshoottime = time
+      self.going = True
+      self.selected = False
+      self.shooting = False
+      self.start = list(self.position)
+      start = self.start
+      self.end = end
     def goshoot(yes=1,no=1,test=2):
         return None
-    def shoot(self,yes=2,no=3,test=2):
+    def shoot(self,yes=2,no=3,test=2,teswt =4):
         return None
 
     def draw(self,surface):

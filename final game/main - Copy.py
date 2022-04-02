@@ -272,8 +272,12 @@ def main():
            RUNNING = False
         if len(enemylst) > 0:
          for enemy in enemylst:
-            enemy.draw(screen)
+            
+            enemy.shoot(pygame.time,projectilelst,allymilitary)
+            enemy.walk(pygame.time)
             enemy.go(gameClock,buildinglst)
+            enemy.draw(screen)
+            
             if enemy.isDead():
                 #rint("remving")
                 enemylst.remove(enemy)

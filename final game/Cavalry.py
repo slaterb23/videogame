@@ -30,6 +30,7 @@ class cavalry(Character):
         self.shootingimage = self.image
         self.shootcursor = 1
         self.attack = 40
+        self.HP = 1000
 
         self.rangeimage = os.path.join("images\Cavalry","up.png")
         self.verimage= os.path.join("images\Cavalry","side.png")
@@ -52,6 +53,18 @@ class cavalry(Character):
 
       self.collideim.position.x = cpointx 
       self.collideim.position.y = cpointy - self.veradjust
+
+    def beginmoving(self,end,time):
+      '''
+      Initializes the go method with the appropriate end variable
+      '''
+      self.noshoottime = time
+      self.going = True
+      self.selected = False
+      self.shooting = False
+      self.start = list(self.position)
+      start = self.start
+      self.end = end
 
     def draw(self,surface):
 
@@ -171,12 +184,12 @@ class cavalry(Character):
     def goshoot(self,target =None):
        self.target = target
        self.shooting = True
-    def shoot(self,clock,projectilelst,enemylst,framerate = 3):
+    def shoot(self,clock,projectilelst,enemylst,framerate = 1):
       ''''
       Walks the citizen as per the requested frame rate      
       '''
       
-      time = clock.get_ticks()/28
+      time = clock.get_ticks()/10
 
       frame =framerate
 
@@ -204,9 +217,7 @@ class cavalry(Character):
                sortedenemy.append(distance)
         
          
-      if self.going ==True:
-         self.shooting =False
-         self.walk(pygame.time)
+
       if self.shooting:
             sortedenemy.sort()
             
