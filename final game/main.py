@@ -17,6 +17,7 @@ import testgraph
 from testgraph import astar, graphmap
 from rifleman import Rifleman
 from Cavalry import cavalry
+from Cannon import cannon
 from dummy import Dummy
 
 SCREEN_SIZE = (1200,950)
@@ -55,7 +56,7 @@ def main():
    buttonpath = os.path.join("images", "citizenbutton.png")
    barrackbuttonpath =os.path.join("images\Buttons", "barracksbutton.png")
    riflemanbuttonpath = os.path.join("images\Buttons", "riflemanbutton.png")
-
+   riflepath = os.path.join("images\Rifleman\Walking","180walking1.png")
 
    
 
@@ -63,8 +64,8 @@ def main():
 
    citizenpath = os.path.join("images", "citizen3.png")
    alliedriflepath = os.path.join("images\Rifleman\Walking","180walking1.png")
-   dummypath = os.path.join("images\pikeman", "0walking1.png")
-   #dummypath = os.path.join("images\Enemies\dummy", "dummy.png")
+   #dummypath = os.path.join("images\pikeman", "0walking1.png")
+   dummypath = os.path.join("images\Enemies\dummy", "dummy.png")
    #dummy2path = os.path.join(
 
    homepath =  "testbuilding"
@@ -96,14 +97,15 @@ def main():
    downpoint = panel(mouse1,mouse1,0,0)
    rightpoint = panel(mouse1,mouse1,0,0)
    leftpoint = panel(mouse1,mouse1,0,0)
-   #Orb = orb(path,velocity,position,offset)
-   #Orb.draw()
+  
+
+   artillery = cannon(1,400,800)
 
    citizenlst = []
    selectedcitizen= []
    buildinglst = []
    unbuiltlst = []
-   allymilitary= []
+   allymilitary= [artillery]
    selectedcitizenlst = []
    projectilelst = []
    leftclicklst = [(480,300),(6,622)]
@@ -209,12 +211,13 @@ def main():
            
            
            
-        if (time)%50 ==0 and time != 0 and time != oldtime:
+        if (time)%10 ==0 and time != 0 and time != oldtime:
            oldtime = time
            randposx = random.randint(50,80)
            randposy = random.randint(50,80)
 
            numenemies = random.randint(1,3)
+           
            played = False
            
            
@@ -222,11 +225,12 @@ def main():
            for i in range (numenemies):
               randposx = random.randint(-10,80)
               randposy = random.randint(-30,50)
+            
+              riflesold = Rifleman(riflepath,randposx,randposy)
+              riflesold.quickshootfix()
+              riflesold.beginmoving((homepos[0] + 50, homepos[1]+50))
 
-              newDummy = Dummy(dummypath,randposx,randposy)
-              newDummy.beginmoving((homepos[0] + 50, homepos[1]+50))
-
-              enemylst.append(newDummy)
+              enemylst.append(riflesold)
           
 
 
@@ -273,7 +277,10 @@ def main():
         if len(enemylst) > 0:
          for enemy in enemylst:
             enemy.draw(screen)
+            enemy.shoot(pygame.time,projectilelst,allymilitary)
             enemy.go(gameClock,buildinglst)
+            
+            
             if enemy.isDead():
                 #rint("remving")
                 enemylst.remove(enemy)

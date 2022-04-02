@@ -31,6 +31,8 @@ class Rifleman(Character):
     def quickshootfix(self):
        self.collisionim =os.path.join("images\Rifleman","riflecollisionrect.png")
        self.collideim = panel(self.collisionim,self.collisionim,0,0)
+       self.walkimage = self.image
+       self.shootimage = self.image
        self.shooting = False
        self.shootcursor = 1
        self.cocksound = pygame.mixer.Sound(os.path.join("sound","cocking.wav"))
@@ -78,16 +80,16 @@ class Rifleman(Character):
 
 
     def draw(self,surface):
-
+        
         self.updatecollide()
         self.updaterange()
         #self.rangeup.draw(surface)
-        pygame.draw.rect(surface,(0,0,255),self.getCollisionRect())
+        #pygame.draw.rect(surface,(0,0,255),self.getCollisionRect())
 
           
 
-        #for item in self.rangelst:
-             #item.draw(surface)
+        for item in self.rangelst:
+             item.draw(surface)
            #print("this is x, " , str(item.position.x))
         #"Length of range " + str(len(self.rangelst)))
 
@@ -175,8 +177,8 @@ class Rifleman(Character):
             if enemy.getCollisionRect().colliderect(rect.getCollisionRect()):
                distance = Distance(list(enemy.getPosition()),list(self.getPosition()))
                self.shooting = True
-               
-
+               print("this is enemies " + str(sortedenemy))
+               #index the distances of the enemyies, then pick the shortest
                distancedict[distance]=enemy
                sortedenemy.append(distance)
         
@@ -188,8 +190,9 @@ class Rifleman(Character):
             sortedenemy.sort()
             
 
-
+            #select the target
             target = distancedict[sortedenemy[0]]
+            print("this is my target " + str(target))
 
             if target.getCollisionRect().colliderect(self.rangeup.getCollisionRect()):
                direction = "0"

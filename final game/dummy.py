@@ -16,6 +16,17 @@ class Dummy(Character):
         self.dead= False
         self.HP = 100
         super().__init__(path,xposition,yposition)
+    def shoot(self,clock,projectilelst,enemylst,framerate = 5):
+        return None
+   
+    def walk(self,clock,framerate = 7):
+
+        return None
+
     
+
+    
+    
+
         
         
