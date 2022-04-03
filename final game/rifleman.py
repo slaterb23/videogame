@@ -36,12 +36,17 @@ class Rifleman(Character):
        self.shooting = False
        self.shootcursor = 1
        self.noshoottime = 0
+
+       self.moving = False
+
        self.cocksound = pygame.mixer.Sound(os.path.join("sound","cocking.wav"))
        self.shootsound = pygame.mixer.Sound(os.path.join("sound","rifleshooting.wav"))
+
        self.direction = "0"
        self.enemy = None
        self.range = 200
        self.cost= [0,25]
+
        self.veradjust= 30
        self.adjust= 20
 
@@ -62,11 +67,11 @@ class Rifleman(Character):
 
 
 
-    def beginmoving(self,end,time):
+    def beginmoving(self,end):
       '''
       Initializes the go method with the appropriate end variable
       '''
-      self.noshoottime = time
+      
       self.going = True
       self.selected = False
       self.shooting = False
@@ -162,7 +167,8 @@ class Rifleman(Character):
     def goshoot(self,target =None):
        self.target = target
        self.shooting = True
-       self.going = False
+       if self.moving ==False:
+         self.going = False
     def shoot(self,clock,projectilelst,enemylst,timer,framerate = 5):
       ''''
       Walks the citizen as per the requested frame rate      
@@ -215,6 +221,9 @@ class Rifleman(Character):
       #    self.walk(pygame.time)
       if not self.shooting:
          self.going =True
+      if self.going ==True and self.moving==True:
+         self.shooting =False
+         
       if self.shooting:
             
             sortedenemy.sort()
@@ -222,7 +231,7 @@ class Rifleman(Character):
 
             #select the target
             target = distancedict[sortedenemy[0]]
-            print("this is my target " + str(target))
+            
 
             if target.getCollisionRect().colliderect(self.rangeup.getCollisionRect()):
                direction = "0"

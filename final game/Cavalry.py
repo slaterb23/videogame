@@ -16,7 +16,7 @@ class cavalry(Character):
 
 
         path = os.path.join('Images\Cavalry'+"\C"+color,"180walking1.png")
-        self.collisionim =os.path.join("images\Rifleman","riflecollisionrect.png")
+        self.collisionim =os.path.join("images\Cavalry","cavcollisionrect.png")
         self.collideim = panel(self.collisionim,self.collisionim,0,0)
         super().__init__(path,xposition,yposition)
         self.range= 30
@@ -54,11 +54,11 @@ class cavalry(Character):
       self.collideim.position.x = cpointx 
       self.collideim.position.y = cpointy - self.veradjust
 
-    def beginmoving(self,end,time):
+    def beginmoving(self,end):
       '''
       Initializes the go method with the appropriate end variable
       '''
-      self.noshoottime = time
+      
       self.going = True
       self.selected = False
       self.shooting = False
@@ -69,7 +69,7 @@ class cavalry(Character):
     def draw(self,surface):
 
         # #self.updatecollide()
-        # pygame.draw.rect(surface,(0,0,255),self.getCollisionRect())  
+        pygame.draw.rect(surface,(0,0,255),self.getCollisionRect())  
         # for item in self.sensorls:
         #   item.draw(surface)
 
@@ -119,6 +119,8 @@ class cavalry(Character):
       Walks the citizen as per the requested frame rate      
       '''
       
+
+      print()
       frame =framerate
 
       #Weird time, but trial and error shows 28 is best for walking
@@ -189,7 +191,9 @@ class cavalry(Character):
       Walks the citizen as per the requested frame rate      
       '''
       
-      time = clock.get_ticks()/10
+      time = clock.get_ticks()/28
+
+      print("this is cursor " + str(self.shootingcursor))
 
       frame =framerate
 
@@ -245,13 +249,14 @@ class cavalry(Character):
             self.shootimage = pygame.image.load(os.path.join("images\Cavalry" + "\C"+self.color,str(direction) + "shooting" + str(max(1,round(self.shootcursor/frame)))+".png")).convert()
               #Blit it here instead of the draw method for better clarity
             self.shootimage.set_colorkey(self.image.get_at((0,0)))
-            if (time -self.starttime > 0.7):
-               # Update time every 2.1 ish seconds
+            print("difference " + str(abs(time -self.starttime )))
+            # if abs(time -self.starttime) > 0.7:
+            #    # Update time every 2.1 ish seconds
                
-               self.changetime(time)
+            #    self.changetime(time)
             
                        
-               if self.shootcursor >4*frame:
+            if self.shootcursor >4*frame:
                   # If the animation frame is greater than seven (only seven walking animation frames) then reset the cursor
                   self.shootcursor = 1
                # change animation frame as per the animation cursor
@@ -259,12 +264,12 @@ class cavalry(Character):
                  
                   
 
-               if self.shootcursor <=4*frame:
+            if self.shootcursor <=4*frame:
                   #Move the Animatioon framecursor as long as it is below the frame amount
                   self.shootcursor +=1
            
                   
-               if self.shootcursor == 2*frame:
+            if self.shootcursor == 2*frame:
                   
                   target.recvDamage(self.attack)
 
@@ -300,3 +305,10 @@ class cavalry(Character):
 
       self.rangeright.position.x = cpointx+15
       self.rangeright.position.y = cpointy
+   
+    def getCollisionRect(self):
+       
+       oldrect =  self.collideim.image.get_rect()
+       
+       return oldrect
+

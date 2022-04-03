@@ -228,7 +228,7 @@ def main():
             
               riflesold = Rifleman(riflepath,randposx,randposy)
               riflesold.quickshootfix()
-              riflesold.beginmoving((homepos[0] + 50, homepos[1]+50),time)
+              riflesold.beginmoving((homepos[0] + 50, homepos[1]+50))
 
               enemylst.append(riflesold)
           
@@ -384,10 +384,10 @@ def main():
           
               rand = random.randint(0,1)
 
-              if event.type == pygame.KEYDOWN:
-                  #tutorial = pygame.image.load(os.path.join("images", "axe1.png")).convert()
-                  #screen.blit(tutorial,[500,500])
-                  print("============ This is Pos" + str(pygame.mouse.get_pos()))
+            #   if event.type == pygame.KEYDOWN:
+            #       #tutorial = pygame.image.load(os.path.join("images", "axe1.png")).convert()
+            #       #screen.blit(tutorial,[500,500])
+            #       print("============ This is Pos" + str(pygame.mouse.get_pos()))
 
 
                   
@@ -397,9 +397,9 @@ def main():
 
                
 
-              if event.type == pygame.KEYDOWN:
-                 for riflesold in allymilitary:
-                    riflesold.goshoot()
+            #   if event.type == pygame.KEYDOWN:
+            #      for riflesold in allymilitary:
+            #         riflesold.goshoot()
                
                  
               
@@ -427,6 +427,19 @@ def main():
                            buildings.unselect()
 
                  if event.button ==1:
+
+                    #**********************LEFT CLICK ATIONS *****************************************************
+
+                     for soldier in allymilitary:
+                        if cursor.getCollisionRect().colliderect(soldier.getCollisionRect()):
+                                 #mouse is selecting the human
+                                 if cursor.occupied == False:
+                                    soldier.select()
+                                    print( "selecting solder " + str(soldier))
+                                    #selectedcitizen.append(man)
+                                    soldier.shooting ==False
+                                    cursor.occupied = True
+
                      if cursor.getCollisionRect().colliderect(button.getCollisionRect()):
                         if home.isselected():
 
@@ -463,11 +476,13 @@ def main():
                               cav = cavalry("Red",300,400)
 
                               riflesoldier = buildings.spawn("rifleman",register)
+
+                              #finished tutorial
                               finished = True
                               
                               
                               #rint("gold " +str(register.gold))
-                              if riflesoldier in (True,False):
+                              if riflesoldier in (True,False): # the soldier becomes a boolean if there are not enough resources
 
                                  displaynotenough = True
                                  notenoughtime = time
@@ -478,13 +493,23 @@ def main():
                                  register.addGold(-1*costregister["rifleman"][1])
                                  randomx = random.randint(-80,-40)
                                  randomy= random.randint(-100,-40)
-                                 riflesoldier.beginmoving([randomx+buildings.getPosition().x,randomy + buildings.getPosition().y],time)
+                                 riflesoldier.beginmoving([randomx+buildings.getPosition().x,randomy + buildings.getPosition().y])
                                  allymilitary.append(riflesoldier)
                                  allymilitary.append(cav)
 
-                                 cav.beginmoving([randomx+buildings.getPosition().x,randomy + buildings.getPosition().y+300],time)
+                                 cav.beginmoving([randomx+buildings.getPosition().x,randomy + buildings.getPosition().y+300])
                            
-                        
+                     for man in citizenlst: 
+                        if cursor.getCollisionRect().colliderect(man.getCollisionRect()):
+                                 #mouse is selecting the human
+                                 if cursor.occupied == False:
+                                    man.select()
+                                    leftclicklst.append((6,622))
+                                    leftindex +=1
+
+                                    selectedcitizen.append(man)
+                                    
+                                    cursor.occupied = True   
                            
                      for buildings in buildinglst:
                         if cursor.getCollisionRect().colliderect(buildings.getCollisionRect()):
@@ -499,45 +524,39 @@ def main():
                            cursor.occupied = True
                            if len(selectedcitizen) != 0:
                                  selectedcitizen.remove(selectedcitizen[len(selectedcitizen)-1])
-                     for man in citizenlst: 
-                        if cursor.getCollisionRect().colliderect(man.getCollisionRect()):
-                                 #mouse is selecting the human
-                                 if cursor.occupied == False:
-                                    man.select()
-                                    leftclicklst.append((6,622))
-                                    leftindex +=1
 
-                                    selectedcitizen.append(man)
-                                    
-                                    cursor.occupied = True
-                     
+                     for man in citizenlst:
+
                         if man.isselected():
                            selectedcitizenlst =[]
                            selectedcitizenlst.append(man)
+
+                           #if the citizen is about to build a barracks
                            if cursor.getCollisionRect().colliderect(barrackbutton.getCollisionRect()):
 
                                  leftclicklst.append((-400,-400))
-                                 leftindex +=1
+                                 leftindex +=1   # move tutorial point
                                  barracks = building(barrackselected,barrackdir,barrackpath,barrackdir,300,400,0)
                                  barracks.changecolliderect(barrackcollide)
                                  rightclicklst.append((200,290))
 
-                                 righttime = time
+                                 righttime = time  #timer for tutorial arrow
 
                                  rightindex +=1
-                                 register.addWood(-1*costregister["barracks"][0])
+                                 register.addWood(-1*costregister["barracks"][0])  
                                  unbuiltlst.append(barracks)
                                  
 
                                  cursor.occupied = True
 
-                     for soldier in allymilitary:
-                        if cursor.getCollisionRect().colliderect(soldier.getCollisionRect()):
-                                 #mouse is selecting the human
-                                 if cursor.occupied == False:
-                                    soldier.select()
-                                    #selectedcitizen.append(man)
-                                    cursor.occupied = True
+                     # for soldier in allymilitary:
+                     #    if cursor.getCollisionRect().colliderect(soldier.getCollisionRect()):
+                     #             #mouse is selecting the human
+                     #             if cursor.occupied == False:
+                     #                soldier.select()
+                     #                #selectedcitizen.append(man)
+                     #                soldier.shooting ==False
+                     #                cursor.occupied = True
 
 
                         
@@ -558,7 +577,11 @@ def main():
                            cursor.occupied = True
 
                         #IF not in a shooting state:
-                           soldier.beginmoving(list(pygame.mouse.get_pos()),time)
+                           soldier.shooting = False
+
+                           soldier.moving = True
+                           
+                           soldier.beginmoving(list(pygame.mouse.get_pos()))
                         else:
                            soldier.unselect()
                            cursor.occupied = False

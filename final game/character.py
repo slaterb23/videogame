@@ -376,18 +376,18 @@ class Character(drawable):
                  
           if xdiff < 0 and "right" in paths:
              self.pathstate = ""
-             print("right")
+             #p#rint("right")
              self.lastspeed = "right"
              return speeddict["right"]
              
           if xdiff > 0 and "left" in paths:
              self.pathstate = ""
-             print("left")
+             #p#rint("left")
              self.lastspeed = "left"
              return speeddict["left"]
              
           if ydiff <self.ysensormin and "down" in paths:
-             print("down")
+             #r#int("down")
              self.lastspeed = "down"
              return speeddict["down"]
 
@@ -396,29 +396,30 @@ class Character(drawable):
          #     return speeddict["up"]
        
        if self.pathstate == "2":
-          print(self.lastspeed + "2")
+          ##pri#nt(self.lastspeed + "2")
           return speeddict[self.lastspeed]
        elif self.pathstate =="1":
           if ydiff < 0 and "down" in paths:
              self.pathstate = ""
              self.lastspeed = "down"
-             print("down2")
+             #print("down2")
              return speeddict["down"]
              
           if ydiff > 0 and "up" in paths:
              self.pathstate = ""
              self.lastspeed = "up"
-             print("up2")
+             #print("up2")
              return speeddict["up"]
              
           if xdiff <=0 and "left" in paths:
              self.lastspeed = "left"
-             print("left2")
+             #print("left2")
              return speeddict["left"]
 
           elif xdiff >=0 and "right" in paths:
              self.lastspeed = "right"
-             print("right2")
+             p
+            #rint("right2")
              return speeddict["right"]
       
 
@@ -433,7 +434,7 @@ class Character(drawable):
           self.pathstate = "2"
       
           
-       print("selfstate is " + self.pathstate)
+       #p#rint("selfstate is " + self.pathstate)
        if self.pathstate != "":
           return speeddict[self.lastspeed]
 
@@ -445,7 +446,7 @@ class Character(drawable):
 
                 for string in paths:
                    pats += (" ,"+string)
-                print(" This is speed1 "  + priority[index] + " " + pats)
+                #pri#nt(" This is speed1 "  + priority[index] + " " + pats)
                 
                 if Character.isopposite(self.lastspeed,priority[index]):
                    return speeddict[self.lastspeed]
@@ -480,7 +481,7 @@ class Character(drawable):
              if priority[index] in paths:
                 for string in paths:
                    pats += (" ,"+string)
-                print(" This is speed3 "  + priority[index] + " " + pats)
+                #p#rint(" This is speed3 "  + priority[index] + " " + pats)
                 if Character.isopposite(self.lastspeed,priority[index]):
                    return speeddict[self.lastspeed]
                 else:
@@ -499,7 +500,7 @@ class Character(drawable):
                 pats = ' '
                 for string in paths:
                    pats += (" ,"+string)
-                print(" This is speed4 "  + priority[index] + " " + pats)
+                #p#rint(" This is speed4 "  + priority[index] + " " + pats)
                 if Character.isopposite(self.lastspeed,priority[index]):
                    return speeddict[self.lastspeed]
                 else:

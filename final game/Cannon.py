@@ -5,6 +5,7 @@ from Panel import panel
 from character import Character
 import os
 import pygame
+import math
 
 
 
@@ -25,10 +26,11 @@ class cannon(Character):
         self.walkimage = self.image
         self.shootimage = self.image
         self.direction = "0"
+        self.moving = False
 
 
-        self.rangeimage = os.path.join("images\Rifleman","riflerangerect.png")
-        self.verimage= os.path.join("images\Rifleman","uprange.png")
+        self.rangeimage = os.path.join("images\Cannon","riflerangerect.png")
+        self.verimage= os.path.join("images\Cannon","uprange.png")
 
        ####Sensing the direction
       
@@ -43,22 +45,168 @@ class cannon(Character):
         self.rangelst = [self.rangeup,self.rangedown,self.rangeright,self.rangeleft]
 
 
-    def beginmoving(self,end,time):
+               
+    def goshoot(self,target =None):
+       self.target = target
+       self.shooting = True
+       if self.moving ==False:
+         self.going = False
+    def shoot(self,clock,projectilelst,enemylst,timer,framerate = 5):
+      ''''
+      Walks the citizen as per the requested frame rate      
+      '''
+
+
+
+      time = clock.get_ticks()/28
+
+      #rint("this is enemies " + str(enemylst))
+
+
+      frame =framerate
+
+      distancedict = {}
+
+      sortedenemy = []
+      
+      self.shootimage = self.image
+
+      self.shooting = False
+      for enemy in enemylst:
+         xdiff = self.getPosition().x -enemy.getPosition().x
+         ydiff = self.getPosition().y -enemy.getPosition().y
+         xdiff= min(xdiff, 0.0001)
+         angle = (abs(math.atan(ydiff/xdiff)))*180/(math.pi)
+         
+      
+         for rect in self.rangelst:
+            if enemy.getCollisionRect().colliderect(rect.getCollisionRect()):
+               distance = Distance(list(enemy.getPosition()),list(self.getPosition()))
+               # if self.going ==True:
+               #    # wait five seconds if it is moving somewhere
+               #    print("timer " + str(timer) + " noshoot "  + str(self.noshoottime))
+               #    if (timer-self.noshoottime)> 5:
+                  
+               #       self.goshoot()
+               # else:
+               self.goshoot()
+              
+               
+               #index the distances of the enemyies, then pick the shortest
+               distancedict[distance]=enemy
+               sortedenemy.append(distance)
+               #rint("sortled " + str(sortedenemy))
+        
+         
+      # if self.going ==True:
+      #    self.shooting =False
+      #    self.walk(pygame.time)
+      if not self.shooting:
+         self.going =True
+      if self.going ==True and self.moving==True:
+         self.shooting =False
+         
+      if self.shooting:
+            
+            sortedenemy.sort()
+            
+
+            #select the target
+            target = distancedict[sortedenemy[0]]
+            
+
+            if target.getCollisionRect().colliderect(self.rangeup.getCollisionRect()):
+               direction = "0"
+
+            elif target.getCollisionRect().colliderect(self.rangedown.getCollisionRect()):
+
+               direction = "180"
+
+            elif target.getCollisionRect().colliderect(self.rangeleft.getCollisionRect()):
+               direction = "270"
+
+            elif target.getCollisionRect().colliderect(self.rangeright.getCollisionRect()):
+               direction = "90"
+            else:
+               direction = "0"
+
+
+
+         
+
+
+
+         
+               #rint("This is self direction ", self.direction, "this is angle " + str(angle))
+
+            self.shootimage = pygame.image.load(os.path.join("images\Rifleman\Shooting", direction+"shooting"+str(max(1,round(self.shootcursor/frame)))+".png")).convert()
+               #Blit it here instead of the draw method for better clarity
+            self.shootimage.set_colorkey(self.image.get_at((0,0)))
+            if (time -self.starttime > 0.7):
+                  # Update time every 2.1 ish seconds
+                  
+                  self.changetime(time)
+               
+                        
+            if self.shootcursor >14*frame:
+                     # If the animation frame is greater than seven (only seven walking animation frames) then reset the cursor
+                     self.shootcursor = 1
+                  # change animation frame as per the animation cursor
+               
+                  
+                     
+
+            if self.shootcursor <=14*frame:
+                     #Move the Animatioon framecursor as long as it is below the frame amount
+                     self.shootcursor +=1
+            if self.shootcursor >14*frame:
+                     self.shootcursor = 1
+
+            if self.shootcursor == 10*frame:
+                     bullet = Projectile(self.position.x-10,self.position.y+10,400,int(direction),enemylst)
+                     projectilelst.append(bullet)
+                     self.shootsound.play()
+            if self.shootcursor == 2*frame:
+                     
+                     self.cocksound.play()
+
+                  
+                  # if self.cursor in(5*frame,frame):
+                     
+                  #    self.cursor += (round(frame/1.5))
+               
+                     
+                    
+
+    def beginmoving(self,end):
       '''
       Initializes the go method with the appropriate end variable
       '''
-      self.noshoottime = time
+    
       self.going = True
       self.selected = False
       self.shooting = False
       self.start = list(self.position)
       start = self.start
       self.end = end
-    def goshoot(yes=1,no=1,test=2):
-        return None
-    def shoot(self,yes=2,no=3,test=2,teswt =4):
-        return None
+   
 
+    def updaterange(self):
+      cpointy = self.position.y +self.centery*self.getHeight()  
+      cpointx = self.position.x +self.centerx*self.getWidth() 
+
+      self.rangeup.position.x = cpointx-6
+      self.rangeup.position.y = cpointy-300
+
+      self.rangedown.position.x = cpointx-6
+      self.rangedown.position.y = cpointy+60
+
+      self.rangeleft.position.x = cpointx-330
+      self.rangeleft.position.y = cpointy-8
+
+
+      self.rangeright.position.x = cpointx+20
+      self.rangeright.position.y = cpointy-12
     def draw(self,surface):
 
         self.updatecollide()
@@ -68,8 +216,8 @@ class cannon(Character):
 
           
 
-        #for item in self.rangelst:
-             #item.draw(surface)
+        for item in self.rangelst:
+             item.draw(surface)
            #print("this is x, " , str(item.position.x))
         #"Length of range " + str(len(self.rangelst)))
 
