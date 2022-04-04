@@ -10,12 +10,14 @@ import math
 
 
 class cannon(Character):
-    def __init__(self,side,xposition,yposition):
-        if side ==1:
-            path = os.path.join("images\Cannon", "90walking1.png")
+    def __init__(self,color,xposition,yposition):
+        if color =="Green":
+            self.color = "green"
+            path = os.path.join("images\Cannon" +"\Green", "90walking1.png")
         
         else:
-            path = path = os.path.join("images\Cannon", "90walking1.png")
+           self.color = "Red"
+           path = path = os.path.join("images\Cannon\Red", "90walking1.png")
 
         super().__init__(path,xposition,yposition)
         self.shootcursor =1
@@ -25,8 +27,12 @@ class cannon(Character):
         self.imageres = self.image
         self.walkimage = self.image
         self.shootimage = self.image
+        self.attack = 100
+        self.HP = 1000
+        self.frame = 2
+
         self.direction = "0"
-        self.moving = False
+        self.moving = True
 
 
         self.rangeimage = os.path.join("images\Cannon","riflerangerect.png")
@@ -49,21 +55,16 @@ class cannon(Character):
     def goshoot(self,target =None):
        self.target = target
        self.shooting = True
-       if self.moving ==False:
-         self.going = False
-    def shoot(self,clock,projectilelst,enemylst,timer,framerate = 5):
+    def shoot(self,clock,projectilelst,enemylst,framerate = 2):
       ''''
       Walks the citizen as per the requested frame rate      
       '''
+      
+      time = clock.get_ticks()/1000
 
+      
 
-
-      time = clock.get_ticks()/28
-
-      #rint("this is enemies " + str(enemylst))
-
-
-      frame =framerate
+      frame =6
 
       distancedict = {}
 
@@ -82,38 +83,21 @@ class cannon(Character):
          for rect in self.rangelst:
             if enemy.getCollisionRect().colliderect(rect.getCollisionRect()):
                distance = Distance(list(enemy.getPosition()),list(self.getPosition()))
-               # if self.going ==True:
-               #    # wait five seconds if it is moving somewhere
-               #    print("timer " + str(timer) + " noshoot "  + str(self.noshoottime))
-               #    if (timer-self.noshoottime)> 5:
-                  
-               #       self.goshoot()
-               # else:
-               self.goshoot()
-              
+               self.shooting = True
+               self.starttime = 0
                
-               #index the distances of the enemyies, then pick the shortest
+
                distancedict[distance]=enemy
                sortedenemy.append(distance)
-               #rint("sortled " + str(sortedenemy))
         
          
-      # if self.going ==True:
-      #    self.shooting =False
-      #    self.walk(pygame.time)
-      if not self.shooting:
-         self.going =True
-      if self.going ==True and self.moving==True:
-         self.shooting =False
-         
+
       if self.shooting:
-            
             sortedenemy.sort()
             
 
-            #select the target
+
             target = distancedict[sortedenemy[0]]
-            
 
             if target.getCollisionRect().colliderect(self.rangeup.getCollisionRect()):
                direction = "0"
@@ -129,26 +113,26 @@ class cannon(Character):
                direction = "90"
             else:
                direction = "0"
-
-
-
-         
-
-
-
-         
-               #rint("This is self direction ", self.direction, "this is angle " + str(angle))
-
-            self.shootimage = pygame.image.load(os.path.join("images\Rifleman\Shooting", direction+"shooting"+str(max(1,round(self.shootcursor/frame)))+".png")).convert()
-               #Blit it here instead of the draw method for better clarity
+     
+            #rint("This is self direction ", self.direction, "this is angle " + str(angle))
+            if self.color == "Red":
+               self.shootimage = pygame.image.load(os.path.join("images\Cannon\Red", direction+"shooting"+str(max(1,round(self.shootcursor/frame)))+".png")).convert()
+              #Blit it here instead of the draw method for better clarity
+            else:
+               self.shootimage = pygame.image.load(os.path.join("images\Cannon\Green", direction+"shooting"+str(max(1,round(self.shootcursor/frame)))+".png")).convert()
+            
+              #Blit it here instead of the draw method for better clarity
             self.shootimage.set_colorkey(self.image.get_at((0,0)))
-            if (time -self.starttime > 0.7):
-                  # Update time every 2.1 ish seconds
-                  
-                  self.changetime(time)
+            print("difference " + str(abs(time -self.starttime )))
+            if abs(time -self.starttime) >0.01:
+            #    # Update time every 2.1 ish seconds
                
-                        
-            if self.shootcursor >14*frame:
+               self.changetime(time)
+
+               print("updating " + str(self.shootcursor) + "print this is max " + str(frame*16))
+            
+                       
+               if self.shootcursor >16*frame:
                      # If the animation frame is greater than seven (only seven walking animation frames) then reset the cursor
                      self.shootcursor = 1
                   # change animation frame as per the animation cursor
@@ -156,27 +140,14 @@ class cannon(Character):
                   
                      
 
-            if self.shootcursor <=14*frame:
+               elif self.shootcursor <=16*frame:
                      #Move the Animatioon framecursor as long as it is below the frame amount
                      self.shootcursor +=1
-            if self.shootcursor >14*frame:
-                     self.shootcursor = 1
-
-            if self.shootcursor == 10*frame:
-                     bullet = Projectile(self.position.x-10,self.position.y+10,400,int(direction),enemylst)
-                     projectilelst.append(bullet)
-                     self.shootsound.play()
-            if self.shootcursor == 2*frame:
+            
                      
-                     self.cocksound.play()
-
-                  
-                  # if self.cursor in(5*frame,frame):
+               if self.shootcursor == 14*frame:
                      
-                  #    self.cursor += (round(frame/1.5))
-               
-                     
-                    
+                     target.recvDamage(self.attack)
 
     def beginmoving(self,end):
       '''
@@ -184,7 +155,7 @@ class cannon(Character):
       '''
     
       self.going = True
-      self.selected = False
+      #self.selected = False
       self.shooting = False
       self.start = list(self.position)
       start = self.start
@@ -209,6 +180,8 @@ class cannon(Character):
       self.rangeright.position.y = cpointy-12
     def draw(self,surface):
 
+       
+
         self.updatecollide()
         self.updaterange()
         #self.rangeup.draw(surface)
@@ -216,8 +189,8 @@ class cannon(Character):
 
           
 
-        for item in self.rangelst:
-             item.draw(surface)
+      #   for item in self.rangelst:
+      #        item.draw(surface)
            #print("this is x, " , str(item.position.x))
         #"Length of range " + str(len(self.rangelst)))
 
@@ -280,8 +253,12 @@ class cannon(Character):
             if self.getAnglestate() not in ("270","180","90","0"):
                direction = "0"
                self.direction = direction
-            self.walkimage = pygame.image.load(os.path.join("images\Cannon", direction+"walking"+str(max(1,round(self.cursor/frame)))+".png")).convert()
+            if self.color == "Red":
+               self.walkimage = pygame.image.load(os.path.join("images\Cannon\Red", direction+"walking"+str(max(1,round(self.cursor/frame)))+".png")).convert()
               #Blit it here instead of the draw method for better clarity
+            else:
+               self.walkimage = pygame.image.load(os.path.join("images\Cannon\Green", direction+"walking"+str(max(1,round(self.cursor/frame)))+".png")).convert()
+
             self.walkimage.set_colorkey(self.image.get_at((0,0)))
             if (time -self.starttime > 0.7):
 

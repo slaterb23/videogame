@@ -99,7 +99,7 @@ def main():
    leftpoint = panel(mouse1,mouse1,0,0)
   
 
-   artillery = cannon(1,400,800)
+   artillery = cannon("Red",400,100)
 
    citizenlst = []
    selectedcitizen= []
@@ -561,6 +561,8 @@ def main():
 
                         
                  if event.button ==3:
+
+                    #***************right click methods
                      if len(unbuiltlst) >=1:
                         tobuild =  unbuiltlst[0]
                         builder = selectedcitizenlst[0]
@@ -582,6 +584,7 @@ def main():
                            soldier.moving = True
                            
                            soldier.beginmoving(list(pygame.mouse.get_pos()))
+                           soldier.unselect()
                         else:
                            soldier.unselect()
                            cursor.occupied = False

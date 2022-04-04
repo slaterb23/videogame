@@ -67,6 +67,8 @@ class Rifleman(Character):
 
 
 
+
+
     def beginmoving(self,end):
       '''
       Initializes the go method with the appropriate end variable
@@ -100,12 +102,12 @@ class Rifleman(Character):
         self.updatecollide()
         self.updaterange()
         #self.rangeup.draw(surface)
-        pygame.draw.rect(surface,(0,0,255),self.getCollisionRect())
+        #pygame.draw.rect(surface,(0,0,255),self.getCollisionRect())
 
           
 
-        for item in self.rangelst:
-             item.draw(surface)
+      #   for item in self.rangelst:
+      #        item.draw(surface)
            #print("this is x, " , str(item.position.x))
         #"Length of range " + str(len(self.rangelst)))
 

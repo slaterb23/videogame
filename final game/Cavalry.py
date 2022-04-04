@@ -47,6 +47,108 @@ class cavalry(Character):
         self.rangelst = [self.rangeup,self.rangedown,self.rangeright,self.rangeleft]
 
 
+    def goshoot(self,target =None):
+       self.target = target
+       self.shooting = True
+    def shoot(self,clock,projectilelst,enemylst,framerate = 1):
+      ''''
+      Walks the citizen as per the requested frame rate      
+      '''
+      
+      time = clock.get_ticks()/28
+
+      print("this is cursor " + str(self.shootingcursor))
+
+      frame =framerate
+
+      distancedict = {}
+
+      sortedenemy = []
+      
+      self.shootimage = self.image
+
+      self.shooting = False
+      for enemy in enemylst:
+         xdiff = self.getPosition().x -enemy.getPosition().x
+         ydiff = self.getPosition().y -enemy.getPosition().y
+         xdiff= min(xdiff, 0.0001)
+         angle = (abs(math.atan(ydiff/xdiff)))*180/(math.pi)
+         
+      
+         for rect in self.rangelst:
+            if enemy.getCollisionRect().colliderect(rect.getCollisionRect()):
+               distance = Distance(list(enemy.getPosition()),list(self.getPosition()))
+               self.shooting = True
+               
+
+               distancedict[distance]=enemy
+               sortedenemy.append(distance)
+        
+         
+
+      if self.shooting:
+            sortedenemy.sort()
+            
+
+
+            target = distancedict[sortedenemy[0]]
+
+            if target.getCollisionRect().colliderect(self.rangeup.getCollisionRect()):
+               direction = "0"
+
+            elif target.getCollisionRect().colliderect(self.rangedown.getCollisionRect()):
+
+               direction = "180"
+
+            elif target.getCollisionRect().colliderect(self.rangeleft.getCollisionRect()):
+               direction = "270"
+
+            elif target.getCollisionRect().colliderect(self.rangeright.getCollisionRect()):
+               direction = "90"
+            else:
+               direction = "0"
+     
+            #rint("This is self direction ", self.direction, "this is angle " + str(angle))
+
+            self.shootimage = pygame.image.load(os.path.join("images\Cannon" + "\C"+self.color,str(direction) + "shooting" + str(max(1,round(self.shootcursor/frame)))+".png")).convert()
+              #Blit it here instead of the draw method for better clarity
+            self.shootimage.set_colorkey(self.image.get_at((0,0)))
+            print("difference " + str(abs(time -self.starttime )))
+            # if abs(time -self.starttime) > 0.7:
+            #    # Update time every 2.1 ish seconds
+               
+            #    self.changetime(time)
+            
+                       
+            if self.shootcursor >4*frame:
+                  # If the animation frame is greater than seven (only seven walking animation frames) then reset the cursor
+                  self.shootcursor = 1
+               # change animation frame as per the animation cursor
+              
+                 
+                  
+
+            if self.shootcursor <=4*frame:
+                  #Move the Animatioon framecursor as long as it is below the frame amount
+                  self.shootcursor +=1
+           
+                  
+            if self.shootcursor == 2*frame:
+                  
+                  target.recvDamage(self.attack)
+
+               
+               # if self.cursor in(5*frame,frame):
+                  
+               #    self.cursor += (round(frame/1.5))
+              
+                  
+          
+      else:
+         #If its not in a going state change the image to the defualt reserve image
+         
+         self.image = self.imageres
+
     def updatecollide(self):
       cpointy = self.position.y +self.centery*self.getHeight()+19
       cpointx = self.position.x +self.centerx*self.getWidth()-8
