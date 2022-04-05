@@ -1,6 +1,6 @@
 
 
-
+from Check import check
 import pygame
 import os
 import random
@@ -20,6 +20,7 @@ from Cavalry import cavalry
 from Cannon import cannon
 from dummy import Dummy
 
+
 SCREEN_SIZE = (1200,950)
 
 
@@ -27,7 +28,9 @@ def main():
    
    # initialize the pygame module
    pygame.init()
+   pygame.mixer.pre_init()
    pygame.mixer.init()
+   pygame.mixer.set_num_channels(100)
    # load and set the logo
    
    
@@ -52,11 +55,17 @@ def main():
    goldpath = os.path.join("images", "gold.png")
    treepath = os.path.join("images","tree.png")
 
+   #BUTTONS
+
    panelpath = os.path.join("images", "panel.png")
    buttonpath = os.path.join("images", "citizenbutton.png")
    barrackbuttonpath =os.path.join("images\Buttons", "barracksbutton.png")
+   towerbuttonpath = os.path.join("images\Buttons", "barracksbutton.png")
    riflemanbuttonpath = os.path.join("images\Buttons", "riflemanbutton.png")
-   riflepath = os.path.join("images\Rifleman\Walking","180walking1.png")
+   
+
+   # ENEMIES
+   riflepath = os.path.join("images\Rifleman\Red\Walking","180walking1.png")
 
    
 
@@ -72,10 +81,15 @@ def main():
    homepathdir = "images"
    homeselectedpath = "testbuildingse"
    homeselectpathdir = "images"
+
    barrackdir= "images\Buildings"
    barrackpath = "barracks"
    barrackcollide = pygame.image.load(os.path.join("images", "citizencollisionrect.png")).convert()
 
+   towerdir = barrackdir
+   towerpath = "tower"
+   towercollide = barrackcollide
+   towerselected = "towerselected"
    
    home = building(homeselectedpath,homeselectpathdir,homepath,homepathdir,400,390)
   
@@ -101,6 +115,7 @@ def main():
 
    artillery = cannon("Red",400,100)
 
+   resourcelst= []
    citizenlst = []
    selectedcitizen= []
    buildinglst = []
@@ -108,6 +123,10 @@ def main():
    allymilitary= [artillery]
    selectedcitizenlst = []
    projectilelst = []
+
+   Allbuildings = [buildinglst,[home],resourcelst]
+
+
    leftclicklst = [(480,300),(6,622)]
    rightclicklst =[(-400,-400)]
 
@@ -138,7 +157,10 @@ def main():
    
    button = panel(buttonpath,citizenpath,0,770)
    barrackbutton =  panel(barrackbuttonpath,barrackbuttonpath,0,770)
+   towerbutton =  panel(towerbuttonpath,towerbuttonpath,90,770)
+   
    riflemanbutton = panel(riflemanbuttonpath,riflemanbuttonpath,0,770)
+
    touched = False
 
    
@@ -148,6 +170,7 @@ def main():
    register.addGold(130)
    register.addWood(50)
    blitorder = queue()
+   Checker = check()
    
    
       #rint(enemy.isDead())
@@ -197,12 +220,12 @@ def main():
            warn = False
 
         #rint(str(time) + " THis is the timer " + str(timer))
-        if (time)%45 ==0 and time != 0:
+        if (time)%30 ==0 and time != 0:
            timer = time
            warn = True
            if played == False:
 
-            siren.play()
+            #siren.play()
             played = True
 
          
@@ -211,7 +234,7 @@ def main():
            
            
            
-        if (time)%10 ==0 and time != 0 and time != oldtime:
+        if (time)%36 ==0 and time != 0 and time != oldtime:
            oldtime = time
            randposx = random.randint(50,80)
            randposy = random.randint(50,80)
@@ -223,11 +246,11 @@ def main():
            
 
            for i in range (numenemies):
-              randposx = random.randint(-10,80)
-              randposy = random.randint(-30,50)
+              randposx = random.randint(20,58)
+              randposy = random.randint(93,95)
             
               riflesold = Rifleman(riflepath,randposx,randposy)
-              riflesold.quickshootfix()
+              riflesold.quickshootfix("Red")
               riflesold.beginmoving((homepos[0] + 50, homepos[1]+50))
 
               enemylst.append(riflesold)
@@ -313,6 +336,19 @@ def main():
         #barrack.draw(screen)
         selectedexists = False
         
+        
+        if len(unbuiltlst)>=1:
+         for buildings in unbuiltlst:
+               
+               suitable = Checker.checkcollide(cursor,Allbuildings,buildings)
+               if buildings.maxprogress ==5:
+                  buildings.drawblueprint(screen,suitable,"barrack")
+               else:
+                  buildings.drawblueprint(screen,suitable,"tower")
+
+
+               
+        
         if len(buildinglst)>=1:
          for buildings in buildinglst:
                buildings.draw(screen)
@@ -350,6 +386,7 @@ def main():
               citizen.build(pygame.time)
               if citizen.isselected():
                  selectedexists = True
+                 towerbutton.draw(screen)
       
        
         
@@ -377,7 +414,7 @@ def main():
 
         
            
-         
+      
          
         
         for event in pygame.event.get():
@@ -387,7 +424,7 @@ def main():
             #   if event.type == pygame.KEYDOWN:
             #       #tutorial = pygame.image.load(os.path.join("images", "axe1.png")).convert()
             #       #screen.blit(tutorial,[500,500])
-            #       print("============ This is Pos" + str(pygame.mouse.get_pos()))
+                   
 
 
                   
@@ -396,7 +433,7 @@ def main():
                  RUNNING = False
 
                
-
+                 
             #   if event.type == pygame.KEYDOWN:
             #      for riflesold in allymilitary:
             #         riflesold.goshoot()
@@ -404,6 +441,7 @@ def main():
                  
               
               if event.type == pygame.KEYUP:
+                 #rint("============ This is Pos" + str(pygame.mouse.get_pos()))
                  for riflesold in allymilitary:
                     riflesold.shooting = False
                #   rowlst  = []
@@ -435,7 +473,7 @@ def main():
                                  #mouse is selecting the human
                                  if cursor.occupied == False:
                                     soldier.select()
-                                    print( "selecting solder " + str(soldier))
+                                    
                                     #selectedcitizen.append(man)
                                     soldier.shooting ==False
                                     cursor.occupied = True
@@ -489,7 +527,7 @@ def main():
                                  pass#rint("++++++++++NO++++++++++++++++++")
                               else:
                               
-                                 riflesoldier.quickshootfix()
+                                 riflesoldier.quickshootfix("Green")
                                  register.addGold(-1*costregister["rifleman"][1])
                                  randomx = random.randint(-80,-40)
                                  randomy= random.randint(-100,-40)
@@ -530,10 +568,27 @@ def main():
                         if man.isselected():
                            selectedcitizenlst =[]
                            selectedcitizenlst.append(man)
+                           
+                           if cursor.getCollisionRect().colliderect(towerbutton.getCollisionRect()):
+                              tower = building(towerselected,towerdir,towerpath,towerdir,300,400,0)
+                              tower.changecolliderect(barrackcollide)
+                              tower.maxprogress =9
+
+                              register.addWood(-1*costregister["barracks"][0])  
+                              unbuiltlst.append(tower)
+
+                              
+
+                              
+                                 
+
+
+                          
+                        
 
                            #if the citizen is about to build a barracks
                            if cursor.getCollisionRect().colliderect(barrackbutton.getCollisionRect()):
-
+                                 
                                  leftclicklst.append((-400,-400))
                                  leftindex +=1   # move tutorial point
                                  barracks = building(barrackselected,barrackdir,barrackpath,barrackdir,300,400,0)
@@ -565,13 +620,24 @@ def main():
                     #***************right click methods
                      if len(unbuiltlst) >=1:
                         tobuild =  unbuiltlst[0]
-                        builder = selectedcitizenlst[0]
-                        tobuild.position.x = pygame.mouse.get_pos()[0]
-                        tobuild.position.y =pygame.mouse.get_pos()[1]-tobuild.getHeight()
-                        builder.gobuild(tobuild)
-                        builder.beginmoving((tobuild.position.x-20, tobuild.position.y+tobuild.getHeight()-42))
+
+                        x = pygame.mouse.get_pos()[0]
+                        y = pygame.mouse.get_pos()[1]+tobuild.getHeight()
                         
-                        buildinglst.append(unbuiltlst[0])
+
+                        if Checker.checkcollide(cursor,Allbuildings,tobuild,x,y):
+
+
+                           
+                           builder = selectedcitizenlst[0]
+                           tobuild.position.x = pygame.mouse.get_pos()[0]
+                           tobuild.position.y =pygame.mouse.get_pos()[1]-tobuild.getHeight()
+                           builder.gobuild(tobuild)
+                           builder.beginmoving((tobuild.position.x-20, tobuild.position.y+tobuild.getHeight()-42))
+                           
+                           
+                           buildinglst.append(unbuiltlst[0])
+                           unbuiltlst.remove(tobuild)
                         
                         
                      for soldier in allymilitary:
@@ -593,6 +659,7 @@ def main():
 
                      
                         if man.isselected():
+                           
                            
                            
                            cursor.occupied = True

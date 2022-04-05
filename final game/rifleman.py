@@ -13,10 +13,13 @@ from Panel import panel
 from character import Character
 class Rifleman(Character):
 
-    def __init___(path,self,xposition,yposition):
-
+    def __init__(self,path,xposition,yposition,color="Green"):
+        self.color = color
         super().__init__(path,xposition,yposition)
-        path=  os.path.join("images\Rifleman\Walking","180walking1.png")
+        if self.color == "Green":
+         path=  os.path.join("images\Rifleman\Green\Walking","180walking1.png")
+        else:
+         path = os.path.join("images\Rifleman\Red\Walking","180walking1.png")
         self.walking = False
         self.imageres = self.image
         self.shooting = False
@@ -28,7 +31,8 @@ class Rifleman(Character):
         self.shootsound = pygame.mixer.Sound(os.path.join("sound","rifleshooting.wav"))
         
 
-    def quickshootfix(self):
+    def quickshootfix(self,color):
+       
        self.collisionim =os.path.join("images\Rifleman","riflecollisionrect.png")
        self.collideim = panel(self.collisionim,self.collisionim,0,0)
        self.walkimage = self.image
@@ -36,6 +40,7 @@ class Rifleman(Character):
        self.shooting = False
        self.shootcursor = 1
        self.noshoottime = 0
+       self.color = color
 
        self.moving = False
 
@@ -169,21 +174,16 @@ class Rifleman(Character):
     def goshoot(self,target =None):
        self.target = target
        self.shooting = True
-       if self.moving ==False:
-         self.going = False
-    def shoot(self,clock,projectilelst,enemylst,timer,framerate = 5):
+
+    def shoot(self,clock,projectilelst,enemylst,framerate = 5):
       ''''
       Walks the citizen as per the requested frame rate      
       '''
-
-
-
+     
       time = clock.get_ticks()/28
 
-      #rint("this is enemies " + str(enemylst))
-
-
-      frame =framerate
+      
+      frame =5
 
       distancedict = {}
 
@@ -202,38 +202,26 @@ class Rifleman(Character):
          for rect in self.rangelst:
             if enemy.getCollisionRect().colliderect(rect.getCollisionRect()):
                distance = Distance(list(enemy.getPosition()),list(self.getPosition()))
-               # if self.going ==True:
-               #    # wait five seconds if it is moving somewhere
-               #    print("timer " + str(timer) + " noshoot "  + str(self.noshoottime))
-               #    if (timer-self.noshoottime)> 5:
-                  
-               #       self.goshoot()
-               # else:
-               self.goshoot()
-              
+               self.shooting = True
+               self.going = False
                
-               #index the distances of the enemyies, then pick the shortest
+
                distancedict[distance]=enemy
                sortedenemy.append(distance)
-               #rint("sortled " + str(sortedenemy))
         
-         
-      # if self.going ==True:
-      #    self.shooting =False
-      #    self.walk(pygame.time)
-      if not self.shooting:
-         self.going =True
-      if self.going ==True and self.moving==True:
-         self.shooting =False
-         
+
+     
+
+      start = list(self.position)
+      if Distance(start,self.end)-self.tolerance > 36 and self.shooting != True:
+         self.going = True
+
       if self.shooting:
-            
             sortedenemy.sort()
             
 
-            #select the target
+
             target = distancedict[sortedenemy[0]]
-            
 
             if target.getCollisionRect().colliderect(self.rangeup.getCollisionRect()):
                direction = "0"
@@ -249,32 +237,22 @@ class Rifleman(Character):
                direction = "90"
             else:
                direction = "0"
+     
+            #rint("This is self direction ", self.direction, "this is angle " + str(angle))
 
-
-
-         
-
-
-
-         
-               #rint("This is self direction ", self.direction, "this is angle " + str(angle))
-
-            self.shootimage = pygame.image.load(os.path.join("images\Rifleman\Shooting", direction+"shooting"+str(max(1,round(self.shootcursor/frame)))+".png")).convert()
-               #Blit it here instead of the draw method for better clarity
+            if self.color== "Green":
+                  self.shootimage = pygame.image.load(os.path.join("images\Rifleman\Green\Shooting", direction+"shooting"+str(max(1,round(self.shootcursor/frame)))+".png")).convert()
+            else:
+                  self.shootimage = pygame.image.load(os.path.join("images\Rifleman\Red\Shooting", direction+"shooting"+str(max(1,round(self.shootcursor/frame)))+".png")).convert()
             self.shootimage.set_colorkey(self.image.get_at((0,0)))
-            if (time -self.starttime > 0.7):
-                  # Update time every 2.1 ish seconds
-                  
-                  self.changetime(time)
+            #print("difference " + str(abs(time -self.starttime )))
+            # if abs(time -self.starttime) > 0.7:
+            #    # Update time every 2.1 ish seconds
                
-                        
-            if self.shootcursor >14*frame:
-                     # If the animation frame is greater than seven (only seven walking animation frames) then reset the cursor
-                     self.shootcursor = 1
-                  # change animation frame as per the animation cursor
-               
-                  
-                     
+            #    self.changetime(time)
+            
+                       
+                    
 
             if self.shootcursor <=14*frame:
                      #Move the Animatioon framecursor as long as it is below the frame amount
@@ -284,20 +262,30 @@ class Rifleman(Character):
 
             if self.shootcursor == 10*frame:
                      bullet = Projectile(self.position.x-10,self.position.y+10,400,int(direction),enemylst)
+
                      projectilelst.append(bullet)
-                     self.shootsound.play()
+                     channel = pygame.mixer.find_channel()
+                     if channel is not None and channel.get_busy() != True:
+                        channel.set_volume(0.4)
+                        channel.play(self.shootsound)
+
             if self.shootcursor == 2*frame:
+                     channel = pygame.mixer.find_channel()
                      
-                     self.cocksound.play()
+                     
+                     
+                     if channel is not None and channel.get_busy() != True:
+                        channel.set_volume(0.2)
+                        channel.play(self.cocksound)
 
                   
-                  # if self.cursor in(5*frame,frame):
+            if self.cursor in(5*frame,frame):
                      
-                  #    self.cursor += (round(frame/1.5))
+                      self.cursor += (round(frame/1.5))
                
                      
-          
 
+                   
     def updateadjust(self):
       cpointy = self.position.y +self.centery*self.getHeight()+19
       cpointx = self.position.x +self.centerx*self.getWidth()-2
@@ -326,7 +314,8 @@ class Rifleman(Character):
       Walks the citizen as per the requested frame rate      
       '''
       
-      frame =framerate
+     
+      frame =7
 
       #Weird time, but trial and error shows 28 is best for walking
       time = clock.get_ticks()/28
@@ -342,11 +331,21 @@ class Rifleman(Character):
             if self.getAnglestate() not in ("270","180","90","0"):
                direction = "0"
                self.direction = direction
-            self.walkimage = pygame.image.load(os.path.join("images\Rifleman\Walking", direction+"walking"+str(max(1,round(self.cursor/frame)))+".png")).convert()
-              #Blit it here instead of the draw method for better clarity
-            self.walkimage.set_colorkey(self.image.get_at((0,0)))
-            if (time -self.starttime > 0.7):
+               
+            if self.color== "Green":
+                  
+                  self.walkimage = pygame.image.load(os.path.join("images\Rifleman\Green\Walking", direction+"walking"+str(max(1,round(self.cursor/frame)))+".png")).convert()
+            else:
+                 
+                  self.walkimage = pygame.image.load(os.path.join("images\Rifleman\Red\Walking", direction+"walking"+str(max(1,round(self.cursor/frame)))+".png")).convert()
 
+                #Blit it here instead of the draw method for better clarity
+            self.walkimage.set_colorkey(self.image.get_at((0,0)))
+
+           
+            if (time -self.starttime >0.3):
+               
+               
                # Update time every 2.1 ish seconds
                
                self.changetime(time)

@@ -418,7 +418,7 @@ class Character(drawable):
 
           elif xdiff >=0 and "right" in paths:
              self.lastspeed = "right"
-             p
+             
             #rint("right2")
              return speeddict["right"]
       
@@ -466,7 +466,7 @@ class Character(drawable):
              if priority[index] in paths:
                 for string in paths:
                    pats += (" ,"+string)
-                print(" This is speed2 "  + priority[index] + " " + pats)
+                #rint(" This is speed2 "  + priority[index] + " " + pats)
                 if Character.isopposite(self.lastspeed,priority[index]):
                    return speeddict[self.lastspeed]
                 else:

@@ -45,7 +45,9 @@ class Projectile(drawable):
         
         
     
-    
+    def changetocannon(self):
+        self.image = pygame.image.load(os.path.join("images\Projectiles","cannonball.png"))
+        self.attack = 90
     def travel(self,time):
         oldpos = self.position
         newposy = oldpos.y + self.velocity.y*time.get_time()/1000

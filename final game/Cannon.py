@@ -5,7 +5,10 @@ from Panel import panel
 from character import Character
 import os
 import pygame
+from projectile import Projectile
 import math
+
+
 
 
 
@@ -30,6 +33,10 @@ class cannon(Character):
         self.attack = 100
         self.HP = 1000
         self.frame = 2
+
+        self.veradjust = 30
+
+        self.shootsound = pygame.mixer.Sound(os.path.join("sound","cannonshooting.wav"))
 
         self.direction = "0"
         self.moving = True
@@ -64,7 +71,7 @@ class cannon(Character):
 
       
 
-      frame =6
+      frame =9
 
       distancedict = {}
 
@@ -84,13 +91,16 @@ class cannon(Character):
             if enemy.getCollisionRect().colliderect(rect.getCollisionRect()):
                distance = Distance(list(enemy.getPosition()),list(self.getPosition()))
                self.shooting = True
+               self.going = False
                self.starttime = 0
                
 
                distancedict[distance]=enemy
                sortedenemy.append(distance)
         
-         
+      start = list(self.position)
+      if Distance(start,self.end)-self.tolerance > 36 and self.shooting != True:
+         self.going = True  
 
       if self.shooting:
             sortedenemy.sort()
@@ -123,13 +133,13 @@ class cannon(Character):
             
               #Blit it here instead of the draw method for better clarity
             self.shootimage.set_colorkey(self.image.get_at((0,0)))
-            print("difference " + str(abs(time -self.starttime )))
+            #rint("difference " + str(abs(time -self.starttime )))
             if abs(time -self.starttime) >0.01:
             #    # Update time every 2.1 ish seconds
                
                self.changetime(time)
 
-               print("updating " + str(self.shootcursor) + "print this is max " + str(frame*16))
+               #rint("updating " + str(self.shootcursor) + "print this is max " + str(frame*16))
             
                        
                if self.shootcursor >16*frame:
@@ -146,8 +156,22 @@ class cannon(Character):
             
                      
                if self.shootcursor == 14*frame:
+                  pygame.mixer.set_num_channels(100)
+                  bullet = Projectile(self.position.x-10,self.position.y+10,400,int(direction),enemylst)
+                  bullet.changetocannon()
+                  projectilelst.append(bullet)
+                  channel = pygame.mixer.find_channel()
+                  print("AM I empty"  + str(channel ==None))
+
+                  
+                  
+                  if channel is not None:
+                        print(" THis is busy " + str(channel.get_busy()))
+                        channel.set_volume(0.8)
+                        channel.play(self.shootsound)
+                  
                      
-                     target.recvDamage(self.attack)
+
 
     def beginmoving(self,end):
       '''
@@ -189,8 +213,8 @@ class cannon(Character):
 
           
 
-      #   for item in self.rangelst:
-      #        item.draw(surface)
+        #for item in self.rangelst:
+              #item.draw(surface)
            #print("this is x, " , str(item.position.x))
         #"Length of range " + str(len(self.rangelst)))
 

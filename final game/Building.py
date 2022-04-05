@@ -5,6 +5,7 @@ from citizen import citizen
 from drawable import drawable
 from rifleman import Rifleman
 import os 
+from Panel import panel
 
 costregister = {"rifleman":[0,30], "citizen":[0,5]}
 
@@ -28,6 +29,8 @@ class building(object):
       self.position = Vector2(0,0)
       self.position.x = xposition
       self.position.y = yposition
+      self.blueprintx  = xposition
+      self.blueprinty = yposition
 
       self.progress = progress
       self.maxprogress = 5
@@ -46,9 +49,11 @@ class building(object):
       self.selectedimage = pygame.image.load(self.selectedpath).convert()
       self.image = self.reserveimage
       self.collideimage = self.reserveimage
+      self.blueprint = self.reserveimage
       self.dead = False
       self.buildlevel = 0
       self.unitdict = {"citizen":citizen, "rifleman":Rifleman}
+      self.homecollidepath = os.path.join("images/Buildings","homecollide.png")
       self.selected = False
       #generate starting conditions for the orb(including random desired speeds, velocity & position vecs)
       
@@ -63,13 +68,17 @@ class building(object):
       self.gathererlst = [0 for x in range(len(self.spots))]
 
       self.HP = 300
+      
+      
+      
+      self.homecollide = panel(self.homecollidepath,self.homecollidepath,0,0)
 
    def setflagpos(self,flagx,flagy):
        self.flagx = flagx
        self.flagy = flagy
 
    def spawn(self,spawnunit,register):
-       riflepath = os.path.join("images\Rifleman\Walking","180walking1.png")
+       riflepath = os.path.join("images\Rifleman\Green\Walking","180walking1.png")
        if spawnunit == "rifleman":
           if register.existsenough(costregister["rifleman"][0],costregister["rifleman"][1]):
           
@@ -93,10 +102,9 @@ class building(object):
        
 
    def draw(self,surface):
-       
-      
-      #rint("I should be here", self.progress, " + ", self.maxprogress)
-      
+
+
+      pygame.draw.rect(surface,(0,0,255),self.getCollisionRect())
 
       if self.dead == False and self.selected ==False:
    
@@ -105,10 +113,15 @@ class building(object):
         
          self.image.set_colorkey(self.image.get_at((0,0)))
          
-      elif self.selected == True:
+      elif self.selected == True and ((self.maxprogress == self.progress) or (self.progress == '')):
          
          surface.blit(self.selectedimage,list(self.position))
          self.selectedimage.set_colorkey(self.selectedimage.get_at((0,0)))
+      else:
+          surface.blit(self.image, list(self.position))
+        
+          self.image.set_colorkey(self.image.get_at((0,0)))
+      
 
 
    def select(self):
@@ -172,6 +185,23 @@ class building(object):
 
       return self.position.x
 
+
+   def drawblueprint(self,surface,suitable,buildtype):
+      
+      if suitable:
+
+         self.blueprint = pygame.image.load(os.path.join("images\Buildings", buildtype + "green.png")).convert()
+         
+      else:
+          self.blueprint = pygame.image.load(os.path.join("images\Buildings", buildtype + "red.png")).convert()
+      
+
+      self.blueprintx = pygame.mouse.get_pos()[0]
+      self.blueprinty = pygame.mouse.get_pos()[1]-self.image.get_height()
+      surface.blit(self.blueprint,(self.blueprintx,self.blueprinty))
+      self.image.set_colorkey(self.image.get_at((0,0)))
+      
+
    def getY(self):
       return self.position.y
 
@@ -199,18 +229,51 @@ class building(object):
       self.collideimage = imagepath
       
     
-   def getCollisionRect(self):
+   
+   def getCollisionRect(self,blueprint=False):
       #rint("this is slef.inflate" + str(self.inflate))
+      home = False
       
-         copy = self.position
+      if type(self.progress) == int:
+         self.collisionim = self.image
+
+      else:
+         #rint(" HHHHHEEEEEEEEEEEEEEERERERE")
+         home = True
+         self.collisionim = self.homecollide.image
+      if not blueprint:
+         oldrect = self.collisionim.get_rect()
+      
+      
+         copy = Vector2(self.position.x,self.position.y+80)
          # copy.x += 10
          # copy.y += 10
 
-         oldrect = self.image.get_rect()
+         
          modified = oldrect
-         newRect =  self.position + modified 
+         if home:
+               newRect =  copy + modified 
+         else:
+               newRect = self.position +modified
 
          return newRect
+      else:
+         copy = Vector2(self.blueprintx,self.blueprinty)
+         oldrect = self.blueprint.get_rect()
+         modified = oldrect
+         newRect =  copy + modified
+
+
+         return newRect 
+
+         
+
+         
+         
+   
+      
+
+
    def drawcollide(self,screen):
       oldrect = self.image.get_rect()
       modified = oldrect

@@ -57,7 +57,7 @@ class cavalry(Character):
       
       time = clock.get_ticks()/28
 
-      print("this is cursor " + str(self.shootingcursor))
+      #rint("this is cursor " + str(self.shootingcursor))
 
       frame =framerate
 
@@ -113,7 +113,7 @@ class cavalry(Character):
             self.shootimage = pygame.image.load(os.path.join("images\Cannon" + "\C"+self.color,str(direction) + "shooting" + str(max(1,round(self.shootcursor/frame)))+".png")).convert()
               #Blit it here instead of the draw method for better clarity
             self.shootimage.set_colorkey(self.image.get_at((0,0)))
-            print("difference " + str(abs(time -self.starttime )))
+            #rint("difference " + str(abs(time -self.starttime )))
             # if abs(time -self.starttime) > 0.7:
             #    # Update time every 2.1 ish seconds
                
@@ -179,8 +179,8 @@ class cavalry(Character):
         
         self.updatecollide()
         self.updaterange()
-      #   for item in self.rangelst:
-      #       item.draw(surface)
+        for item in self.rangelst:
+             item.draw(surface)
         if [self.dead,self.shooting,self.going] == [False,False,False]:
       #its in a nothing state here, doing nothing
          
@@ -222,7 +222,7 @@ class cavalry(Character):
       '''
       
 
-      print()
+
       frame =framerate
 
       #Weird time, but trial and error shows 28 is best for walking
@@ -295,7 +295,7 @@ class cavalry(Character):
       
       time = clock.get_ticks()/28
 
-      print("this is cursor " + str(self.shootingcursor))
+      #print("this is cursor " + str(self.shootingcursor))
 
       frame =framerate
 
@@ -351,7 +351,7 @@ class cavalry(Character):
             self.shootimage = pygame.image.load(os.path.join("images\Cavalry" + "\C"+self.color,str(direction) + "shooting" + str(max(1,round(self.shootcursor/frame)))+".png")).convert()
               #Blit it here instead of the draw method for better clarity
             self.shootimage.set_colorkey(self.image.get_at((0,0)))
-            print("difference " + str(abs(time -self.starttime )))
+            #print("difference " + str(abs(time -self.starttime )))
             # if abs(time -self.starttime) > 0.7:
             #    # Update time every 2.1 ish seconds
                
@@ -409,8 +409,10 @@ class cavalry(Character):
       self.rangeright.position.y = cpointy
    
     def getCollisionRect(self):
-       
-       oldrect =  self.collideim.image.get_rect()
-       
-       return oldrect
+      oldrect = self.image.get_rect()
+      modified = oldrect.inflate(-2,-2)
+      newRect =  self.position + modified 
+      return newRect
+
+
 
