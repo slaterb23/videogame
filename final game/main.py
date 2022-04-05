@@ -179,12 +179,12 @@ def main():
    leftpanel = panel(panelpath,None,0,770)
    rightpanel = panel(panelpath,None,800,770)
 
-   easylst = [610,280]
+   easylst = [540,100]
    easy = drawable(easypath,easylst[0],easylst[1])
-   medium = drawable(mediumpath,easylst[0],easylst[1]+150)
-   hard = drawable(hardpath,easylst[0],easylst[1]+250)
-   tutorial = drawable(tutorialpath,easylst[0],easylst[1]+350)
-   quit = drawable(quitpath,easylst[0],easylst[1]+450)
+   medium = drawable(mediumpath,easylst[0]+10,easylst[1]+160)
+   hard = drawable(hardpath,easylst[0]-17,easylst[1]+300)
+   tutorial = drawable(tutorialpath,easylst[0]-17,easylst[1]+470)
+   quit = drawable(quitpath,easylst[0]+400,easylst[1]+590)
 
    buttonlst = [easy,medium,hard,tutorial,quit]
    
