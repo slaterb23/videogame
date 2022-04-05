@@ -5,6 +5,7 @@ import pygame
 import os
 import random
 from pikeman import Pikeman
+from Gamemanager import Mode
 from vector2D import Vector2
 from citizen import citizen
 from resource import resource
@@ -187,7 +188,13 @@ def main():
    quit = drawable(quitpath,easylst[0]+400,easylst[1]+590)
 
    buttonlst = [easy,medium,hard,tutorial,quit]
-   
+   mode1 = Mode("easy")
+   mode2 = Mode("medium")
+   mode3 = Mode("hard")
+   mode4 = Mode("tutorial")
+   mode5 = Mode("quit")
+
+   conditionlst = [mode1,mode2,mode3,mode4,mode5]
    quill = drawable(quillpath,0,0)
    
    button = panel(buttonpath,citizenpath,0,770)
@@ -234,11 +241,11 @@ def main():
       screen.blit(scroll,list((0,0)))
       
       
-      for button in buttonlst:
-         button.image.set_colorkey(button.image.get_at((0,0)))
+      for buttons in buttonlst:
+         buttons.image.set_colorkey(buttons.image.get_at((0,0)))
       
 
-         button.draw(screen)
+         buttons.draw(screen)
       mousepos = pygame.mouse.get_pos()
 
       quill.position.x = mousepos[0]
@@ -251,23 +258,25 @@ def main():
 
 
       #pygame.draw.rect(screen,(0,0,255),easy.getCollisionRect())  
-      for button in buttonlst:
-         if button.getCollisionRect().collidepoint(mousepos[0],mousepos[1]):
-            button.image = pygame.image.load(selectedbuttons[buttonlst.index(button)])
+      for buttons in buttonlst:
+         if buttons.getCollisionRect().collidepoint(mousepos[0],mousepos[1]):
+            buttons.image = pygame.image.load(selectedbuttons[buttonlst.index(buttons)])
             
 
             
          else:
-            button.image = pygame.image.load(unselectedbuttons[buttonlst.index(button)])
+            buttons.image = pygame.image.load(unselectedbuttons[buttonlst.index(buttons)])
 
       
 
       for event in pygame.event.get():
          if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
-               if easy.getCollisionRect().collidepoint(mousepos[0],mousepos[1]):
-                  Menu = False
-                  mode = "Easy"
+               for buttons in buttonlst:
+                  if buttons.getCollisionRect().collidepoint(mousepos[0],mousepos[1]):
+                     Menu = False
+                     mode = conditionlst[buttonlst.index(buttons)].getMode()
+                     print("This is mode " + mode)
       pygame.display.flip()
 
 
