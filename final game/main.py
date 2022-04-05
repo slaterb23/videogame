@@ -4,6 +4,7 @@ from Check import check
 import pygame
 import os
 import random
+from pikeman import Pikeman
 from vector2D import Vector2
 from citizen import citizen
 from resource import resource
@@ -21,7 +22,7 @@ from Cannon import cannon
 from dummy import Dummy
 
 
-SCREEN_SIZE = (1200,950)
+SCREEN_SIZE = (1440,900)
 
 
 def main():
@@ -44,6 +45,9 @@ def main():
    siren = pygame.mixer.Sound(os.path.join("sound","siren.wav"))
    # Let's make a background so we can see if we're moving
    background = pygame.image.load(os.path.join("images", "grass6.jpg")).convert()
+   scroll = pygame.image.load(os.path.join("images\Menu", "menu1.png")).convert()
+
+
    collide = pygame.image.load(os.path.join("images", "citizencollisionrect.png")).convert()
    leftclickpath =os.path.join("images\Tutorial", "leftclick.png")
    rightclickpath = os.path.join("images\Tutorial", "rightclick.png")
@@ -56,6 +60,24 @@ def main():
    treepath = os.path.join("images","tree.png")
 
    #BUTTONS
+   easypath = os.path.join("images\Menu", "easy.png")
+   easy1path = os.path.join("images\Menu", "easy1.png")
+   mediumpath = os.path.join("images\Menu", "medium.png")
+   medium1path = os.path.join("images\Menu", "medium1.png")
+   hardpath = os.path.join("images\Menu", "hard.png")
+   hard1path = os.path.join("images\Menu", "hard1.png")
+   tutorialpath = os.path.join("images\Menu", "tutorial.png")
+   tutorial1path = os.path.join("images\Menu", "tutorial1.png")
+   quitpath = os.path.join("images\Menu", "quit.png")
+   quit1path = os.path.join("images\Menu", "quit1.png")
+
+   selectedbuttons = [easy1path,medium1path,hard1path,tutorial1path,quit1path]
+   unselectedbuttons =[easypath,mediumpath,hardpath,tutorialpath,quitpath]
+
+
+   quillpath = os.path.join("images\Menu","quill.png")
+
+
 
    panelpath = os.path.join("images", "panel.png")
    buttonpath = os.path.join("images", "citizenbutton.png")
@@ -114,13 +136,15 @@ def main():
   
 
    artillery = cannon("Red",400,100)
+   spearman = Pikeman("Red",300,100)
 
    resourcelst= []
    citizenlst = []
    selectedcitizen= []
-   buildinglst = []
+   buildinglst = [home]
+   buildinglst[0].maxprogress = ''
    unbuiltlst = []
-   allymilitary= [artillery]
+   allymilitary= [artillery,spearman]
    selectedcitizenlst = []
    projectilelst = []
 
@@ -141,7 +165,7 @@ def main():
    gameClock = pygame.time.Clock()
    homepos = list(home.getPosition())
    # define a variable to control the main loop
-   RUNNING = True
+   
 
    timer = 0
    
@@ -154,6 +178,17 @@ def main():
 
    leftpanel = panel(panelpath,None,0,770)
    rightpanel = panel(panelpath,None,800,770)
+
+   easylst = [610,280]
+   easy = drawable(easypath,easylst[0],easylst[1])
+   medium = drawable(mediumpath,easylst[0],easylst[1]+150)
+   hard = drawable(hardpath,easylst[0],easylst[1]+250)
+   tutorial = drawable(tutorialpath,easylst[0],easylst[1]+350)
+   quit = drawable(quitpath,easylst[0],easylst[1]+450)
+
+   buttonlst = [easy,medium,hard,tutorial,quit]
+   
+   quill = drawable(quillpath,0,0)
    
    button = panel(buttonpath,citizenpath,0,770)
    barrackbutton =  panel(barrackbuttonpath,barrackbuttonpath,0,770)
@@ -187,6 +222,62 @@ def main():
    # main loop
 
    played = False
+
+   Menu = True
+
+
+   easyimage = pygame.image.load(easypath)
+   while Menu:
+
+
+      screen.fill((255,255,255))
+      screen.blit(scroll,list((0,0)))
+      
+      
+      for button in buttonlst:
+         button.image.set_colorkey(button.image.get_at((0,0)))
+      
+
+         button.draw(screen)
+      mousepos = pygame.mouse.get_pos()
+
+      quill.position.x = mousepos[0]
+      quill.position.y = mousepos[1]-quill.getHeight()
+
+      quill.draw(screen)
+
+      
+
+
+
+      #pygame.draw.rect(screen,(0,0,255),easy.getCollisionRect())  
+      for button in buttonlst:
+         if button.getCollisionRect().collidepoint(mousepos[0],mousepos[1]):
+            button.image = pygame.image.load(selectedbuttons[buttonlst.index(button)])
+            
+
+            
+         else:
+            button.image = pygame.image.load(unselectedbuttons[buttonlst.index(button)])
+
+      
+
+      for event in pygame.event.get():
+         if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+               if easy.getCollisionRect().collidepoint(mousepos[0],mousepos[1]):
+                  Menu = False
+                  mode = "Easy"
+      pygame.display.flip()
+
+
+         
+      
+      
+      
+
+
+   RUNNING = True
    while RUNNING:
 
         
@@ -316,7 +407,7 @@ def main():
            
         if len(buildinglst) >0:
            for buildings in buildinglst:
-              if buildings.isselected():
+              if buildings.isselected() and buildings.maxprogress==5:
                  leftclicklst.append((6,622))
                  leftindex+=1
                  isbarrackselected = True
@@ -408,7 +499,7 @@ def main():
            
            
         
-        home.draw(screen)
+        #home.draw(screen)
 
         pygame.display.flip()
 
@@ -460,7 +551,7 @@ def main():
                         home.unselect()
                   
                  for buildings in buildinglst:
-                     if cursor.getCollisionRect().colliderect(leftpanel.getCollisionRect()) == False:
+                     if cursor.getCollisionRect().colliderect(leftpanel.getCollisionRect()) == False and buildings.maxprogress != '':
                            cursor.occupied = False
                            buildings.unselect()
 
@@ -508,8 +599,12 @@ def main():
                         #    if cursor.occupied ==False:
                         #       buildings.select()
                         #       cursor.occupied = True
-                        if buildings.isselected():
-                           if cursor.getCollisionRect().colliderect(riflemanbutton.getCollisionRect()):
+
+
+                        
+                        if buildings.isselected() and buildings != buildinglst[0]:
+                           
+                           if cursor.getCollisionRect().colliderect(riflemanbutton.getCollisionRect()) and buildings.maxprogress == 5:
                               
                               cav = cavalry("Red",300,400)
 

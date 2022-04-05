@@ -183,7 +183,7 @@ class Rifleman(Character):
       time = clock.get_ticks()/28
 
       
-      frame =5
+      frame =7
 
       distancedict = {}
 
@@ -315,7 +315,7 @@ class Rifleman(Character):
       '''
       
      
-      frame =7
+      frame =8
 
       #Weird time, but trial and error shows 28 is best for walking
       time = clock.get_ticks()/28

@@ -161,12 +161,12 @@ class cannon(Character):
                   bullet.changetocannon()
                   projectilelst.append(bullet)
                   channel = pygame.mixer.find_channel()
-                  print("AM I empty"  + str(channel ==None))
+                  #rint("AM I empty"  + str(channel ==None))
 
                   
                   
                   if channel is not None:
-                        print(" THis is busy " + str(channel.get_busy()))
+                        #rint(" THis is busy " + str(channel.get_busy()))
                         channel.set_volume(0.8)
                         channel.play(self.shootsound)
                   

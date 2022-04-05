@@ -68,14 +68,17 @@ class panel(object):
       
       
       if self.dead == False and prereq ==True:
+
          
-         surface.blit(self.image, list(self.position))
+         
          self.image.set_colorkey(self.image.get_at((0,0)))
+         surface.blit(self.image, list(self.position))
 
          if self.secondimage is not None:
+             self.image.set_colorkey(self.secondimage.get_at((0,0)))
              
              surface.blit(self.secondimage, list(self.position))
-             self.image.set_colorkey(self.secondimage.get_at((0,0)))
+             
              
 
  
